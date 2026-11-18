@@ -1,0 +1,416 @@
+{
+  "settings": {
+    "siteName": "Life Care Hospital",
+    "logo": "",
+    "logoPublicId": "",
+    "hotline": "10622",
+    "emergency": "+880 1608-100008",
+    "contacts": [
+      "01608-100008",
+      "01608-100007"
+    ],
+    "email": "info@marhj.com",
+    "address": "New College Road, Kachari Para, Jamalpur-2000.",
+    "facebook": "https://www.facebook.com/",
+    "linkedin": "https://www.linkedin.com/",
+    "youtube": "https://www.youtube.com/",
+    "mapLink": "",
+    "heroHeading": "আপনার ও আপনার পরিবারের স্বাস্থ্য সুরক্ষায় [[লাইফ কেয়ার হসপিটাল]] রয়েছে আপনার পাশে",
+    "heroLead": "250-bed tertiary care hospital in Jamalpur. Emergency, ICU, heart centre, dialysis and 16+ specialties under one roof.",
+    "brandsLabel": "United Healthcare brands",
+    "brandChips": [
+      "Life Care Hospital",
+      "medix doctors & diagnostics",
+      "Life Care Hospital"
+    ],
+    "heroImage": "",
+    "heroImagePublicId": "",
+    "quickTiles": [
+      {
+        "label": "Doctor Appointment",
+        "href": "/appointment",
+        "icon": "calendar"
+      },
+      {
+        "label": "Find Your Doctor",
+        "href": "/doctors",
+        "icon": "steth"
+      },
+      {
+        "label": "Checkup Packages",
+        "href": "/packages",
+        "icon": "clipboard"
+      },
+      {
+        "label": "Book An Ambulance",
+        "href": "/ambulance",
+        "icon": "ambulance"
+      }
+    ],
+    "stats": {
+      "beds": 250,
+      "opdRooms": 20,
+      "operationTheatres": 5,
+      "sqft": 134000
+    },
+    "aboutBadge": {
+      "big": "৪ বছর",
+      "sub": "Foundation Day · Life Care Hospital"
+    },
+    "footerAbout": "Life Care Hospital is a 250-bed tertiary care hospital in Jamalpur, a sister concern of United Healthcare Services Ltd., offering emergency, specialist and diagnostic care at an affordable price."
+  },
+  "pages": [
+    {
+      "group": "about",
+      "slug": "vision-and-values",
+      "title": "Vision & Values",
+      "desc": "Amader lokkho Jamalpur o Mymensingh er manushke sohojolobhho, unnoto o bishwamaner shasthyoseba deya.",
+      "order": 0,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Amader lokkho Jamalpur o Mymensingh er manushke sohojolobhho, unnoto o bishwamaner shasthyoseba deya.</p><ul><li>Patient-centered care</li><li>Integrity &amp; transparency</li><li>Continuous learning</li><li>Respect for every patient</li></ul>"
+    },
+    {
+      "group": "about",
+      "slug": "patient-safety-initiatives",
+      "title": "Patient Safety Initiatives",
+      "desc": "Rogir nirapotta amader prothom ordhikar. Prottek bibhage standard safety protocol follow kora hoy.",
+      "order": 1,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Rogir nirapotta amader prothom ordhikar. Prottek bibhage standard safety protocol follow kora hoy.</p><ul><li>Patient identification protocol</li><li>Safe surgery checklist</li><li>Medication safety</li><li>Fall &amp; infection prevention</li></ul>"
+    },
+    {
+      "group": "about",
+      "slug": "hand-hygiene",
+      "title": "Hand Hygiene",
+      "desc": "Hospital-acquired infection kamate hand hygiene guideline kothorbhabe mene chola hoy.",
+      "order": 2,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Hospital-acquired infection kamate hand hygiene guideline kothorbhabe mene chola hoy.</p><ul><li>Alcohol-based sanitizer every ward e</li><li>Staff training &amp; audit</li><li>WHO 5 moments of hand hygiene</li><li>Visitor der jonno sanitizer point</li></ul>"
+    },
+    {
+      "group": "about",
+      "slug": "quality-improvement-plan",
+      "title": "Quality Improvement Plan",
+      "desc": "Niyomito audit, feedback o data-driven unnoyoner maddhome seba-r man baranor porikolpona.",
+      "order": 3,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Niyomito audit, feedback o data-driven unnoyoner maddhome seba-r man baranor porikolpona.</p><ul><li>Patient feedback review</li><li>Clinical audit</li><li>Staff capacity building</li><li>Quarterly quality report</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "emergency",
+      "title": "Emergency",
+      "desc": "Trauma, cardiac o onyanyo joruri obosthar jonno prosto emergency department.",
+      "order": 0,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Trauma, cardiac o onyanyo joruri obosthar jonno prosto emergency department.</p><ul><li>Trauma &amp; accident care</li><li>Cardiac emergency</li><li>Resuscitation facilities</li><li>Emergency hotline: +880 1608-100008</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "ambulance-service",
+      "title": "Ambulance Service",
+      "desc": "Joruri obosthay rogi ke druto hospital e ane dewar jonno ambulance seba.",
+      "order": 1,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Joruri obosthay rogi ke druto hospital e ane dewar jonno ambulance seba.</p><ul><li>Basic &amp; ICU ambulance</li><li>Online ambulance request</li><li>Call: +880 1608-100008</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "nursing",
+      "title": "Nursing",
+      "desc": "A trained nursing team takes care of the patient 24 hours a day.",
+      "order": 2,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>A trained nursing team takes care of the patient 24 hours a day.</p><ul><li>Ward nursing</li><li>ICU / NICU nursing</li><li>Patient education</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "lab",
+      "title": "LAB",
+      "desc": "Adhunik pathology o diagnostic lab; shothik report druto.",
+      "order": 3,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Adhunik pathology o diagnostic lab; shothik report druto.</p><ul><li>Haematology &amp; biochemistry</li><li>Microbiology</li><li>FNAC &amp; biopsy</li><li>Home sample collection</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "ipd",
+      "title": "IPD",
+      "desc": "Admitted rogider jonno aram-dayok cabin o ward.",
+      "order": 4,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Admitted rogider jonno aram-dayok cabin o ward.</p><ul><li>General ward &amp; cabin</li><li>ICU, NICU, CCU, HDU</li><li>Attendant accommodation</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "opd",
+      "title": "OPD",
+      "desc": "20 ti OPD room e visiting doctor o consultant der poramorsho.",
+      "order": 5,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>20 ti OPD room e visiting doctor o consultant der poramorsho.</p><ul><li>Specialist consultation</li><li>Online appointment</li><li>Follow-up visit</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "vaccination",
+      "title": "Vaccination",
+      "desc": "Shishu o boyoshko der jonno protishedhok teeka.",
+      "order": 6,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Shishu o boyoshko der jonno protishedhok teeka.</p><ul><li>Child immunization</li><li>Adult vaccines</li><li>Vaccination card</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "pharmacy",
+      "title": "Pharmacy",
+      "desc": "Hospital pharmacy te proyojoniyo oshudh pawa jay.",
+      "order": 7,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Hospital pharmacy te proyojoniyo oshudh pawa jay.</p><ul><li>Genuine medicines</li><li>Prescription fulfilment</li><li>Inpatient medicine supply</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "food-and-beverage",
+      "title": "Food & beverage",
+      "desc": "Rogir jonno pushti-gun shompanno, porishkar khabar (Dietary Service).",
+      "order": 8,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Rogir jonno pushti-gun shompanno, porishkar khabar (Dietary Service).</p><ul><li>Dietitian-planned menu</li><li>Hygienic kitchen</li><li>Special diet for patients</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "housekeeping-and-laundry",
+      "title": "Housekeeping & Laundry",
+      "desc": "Hospital poribesh porishkar o infection-mukto rakhar jonno housekeeping seba.",
+      "order": 9,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Hospital poribesh porishkar o infection-mukto rakhar jonno housekeeping seba.</p><ul><li>Daily cleaning</li><li>Clinical laundry</li><li>Waste management</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "accommodation-for-attendants",
+      "title": "Accommodation For Attendants",
+      "desc": "Rogir attendant der jonno thakar byabostha.",
+      "order": 10,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Rogir attendant der jonno thakar byabostha.</p><ul><li>Comfortable waiting area</li><li>Prayer room</li><li>Cafeteria access</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "birth-certificate",
+      "title": "Birth Certificate",
+      "desc": "Hospital e jonmo neya shishu der birth certificate shohayota.",
+      "order": 11,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Hospital e jonmo neya shishu der birth certificate shohayota.</p><ul><li>Required documents list</li><li>Admission desk e jogajog</li><li>Hotline: 10622</li></ul>"
+    },
+    {
+      "group": "services",
+      "slug": "death-certificate",
+      "title": "Death Certificate",
+      "desc": "Hospital e mrittur khetre death certificate prodan prokriya.",
+      "order": 12,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Hospital e mrittur khetre death certificate prodan prokriya.</p><ul><li>Required documents list</li><li>Admission desk e jogajog</li><li>Hotline: 10622</li></ul>"
+    },
+    {
+      "group": "admission",
+      "slug": "bed-and-room-categories",
+      "title": "Bed & Room Categories",
+      "desc": "Bibhinno budget o proyojon onujayi general bed, cabin o VIP cabin.",
+      "order": 0,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Bibhinno budget o proyojon onujayi general bed, cabin o VIP cabin.</p><ul><li>General ward bed</li><li>Shared cabin</li><li>Single cabin</li><li>ICU / NICU / HDU</li></ul>"
+    },
+    {
+      "group": "admission",
+      "slug": "admission-desk",
+      "title": "Admission Desk",
+      "desc": "Admission er jonno admission desk e jogajog korun.",
+      "order": 1,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Admission er jonno admission desk e jogajog korun.</p><ul><li>Doctor er admission advice</li><li>NID / identity document</li><li>Admission form fill-up</li></ul>"
+    },
+    {
+      "group": "admission",
+      "slug": "admission-time",
+      "title": "Admission time",
+      "desc": "Admission o discharge shomoy shomporke jante hotline e call korun.",
+      "order": 2,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Admission o discharge shomoy shomporke jante hotline e call korun.</p><ul><li>Emergency admission: shob shomoy</li><li>Hotline: 10622</li></ul>"
+    },
+    {
+      "group": "admission",
+      "slug": "privacy",
+      "title": "Privacy",
+      "desc": "Rogir byaktigoto o chikitsa tothyo shompurno gopon rakha hoy.",
+      "order": 3,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Rogir byaktigoto o chikitsa tothyo shompurno gopon rakha hoy.</p><ul><li>Confidential medical records</li><li>Patient consent</li><li>Visitor policy</li></ul>"
+    },
+    {
+      "group": "admission",
+      "slug": "accreditation",
+      "title": "Accreditation",
+      "desc": "Hospital er license, accreditation o quality certification shomporkito tothyo.",
+      "order": 4,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Hospital er license, accreditation o quality certification shomporkito tothyo.</p><ul><li>DGHS registration</li><li>Quality standards</li><li>Part of United Healthcare Services Ltd.</li></ul>"
+    },
+    {
+      "group": "admission",
+      "slug": "billing-and-payment",
+      "title": "Billing & Payment",
+      "desc": "Shoch ho billing; cash, card o mobile banking e payment.",
+      "order": 5,
+      "showInMenu": true,
+      "published": true,
+      "content": "<p>Shoch ho billing; cash, card o mobile banking e payment.</p><ul><li>Itemised bill</li><li>Cash / Card / MFS</li><li>Corporate &amp; insurance support</li></ul>"
+    }
+  ],
+  "menu": [
+    {
+      "group": "",
+      "children": [],
+      "visible": true,
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "group": "about",
+      "children": [],
+      "visible": true,
+      "label": "About",
+      "href": "/about/vision-and-values"
+    },
+    {
+      "group": "services",
+      "children": [],
+      "visible": true,
+      "label": "Services",
+      "href": "/services/emergency"
+    },
+    {
+      "group": "",
+      "children": [
+        {
+          "label": "Obstetrics & Gynaecology",
+          "href": "/doctors?department=Obstetrics%20%26%20Gynaecology"
+        },
+        {
+          "label": "Internal Medicine",
+          "href": "/doctors?department=Internal%20Medicine"
+        },
+        {
+          "label": "General Surgery",
+          "href": "/doctors?department=General%20Surgery"
+        },
+        {
+          "label": "Endocrinology",
+          "href": "/doctors?department=Endocrinology"
+        },
+        {
+          "label": "Gastroenterology",
+          "href": "/doctors?department=Gastroenterology"
+        },
+        {
+          "label": "Neuro Medicine",
+          "href": "/doctors?department=Neuro%20Medicine"
+        },
+        {
+          "label": "Orthopedic",
+          "href": "/doctors?department=Orthopedic"
+        },
+        {
+          "label": "ENT",
+          "href": "/doctors?department=ENT"
+        },
+        {
+          "label": "Dental Unit",
+          "href": "/doctors?department=Dental%20Unit"
+        },
+        {
+          "label": "Dermatology",
+          "href": "/doctors?department=Dermatology"
+        },
+        {
+          "label": "Respiratory Medicine",
+          "href": "/doctors?department=Respiratory%20Medicine"
+        },
+        {
+          "label": "Cardiology",
+          "href": "/doctors?department=Cardiology"
+        },
+        {
+          "label": "Nephrology",
+          "href": "/doctors?department=Nephrology"
+        },
+        {
+          "label": "Paediatrics",
+          "href": "/doctors?department=Paediatrics"
+        },
+        {
+          "label": "Urology",
+          "href": "/doctors?department=Urology"
+        },
+        {
+          "label": "Oncology",
+          "href": "/doctors?department=Oncology"
+        }
+      ],
+      "visible": true,
+      "label": "Doctors List",
+      "href": "/doctors"
+    },
+    {
+      "group": "admission",
+      "children": [],
+      "visible": true,
+      "label": "Admission",
+      "href": "/admission/bed-and-room-categories"
+    },
+    {
+      "group": "",
+      "children": [
+        {
+          "label": "News & Updates",
+          "href": "/news"
+        },
+        {
+          "label": "Photo Gallery",
+          "href": "/gallery"
+        },
+        {
+          "label": "Videos",
+          "href": "/gallery?tab=videos"
+        }
+      ],
+      "visible": true,
+      "label": "Media Center",
+      "href": "/news"
+    }
+  ]
+}

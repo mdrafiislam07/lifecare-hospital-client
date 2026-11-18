@@ -1,0 +1,285 @@
+/* Rich text (public page + editor) */
+.rich { line-height: 1.75; overflow-wrap: anywhere; }
+.rich h2, .rich h3, .rich h4 { margin: 1.2em 0 .5em; line-height: 1.3; }
+.rich p { margin: 0 0 1em; }
+.rich ul, .rich ol { margin: 0 0 1em; padding-left: 1.4em; }
+.rich li { margin: .25em 0; }
+.rich a { text-decoration: underline; }
+.rich img { max-width: 100%; height: auto; border-radius: 10px; display: block; margin: 1em 0; }
+.rich blockquote { margin: 1em 0; padding: .4em 1em; border-left: 4px solid var(--border, #cbd5e1); opacity: .9; }
+.rich table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1em 0; }
+.rich th, .rich td { border: 1px solid var(--border, #d9e0e7); padding: .5em .75em; text-align: left; }
+
+.rich-box { border: 1px solid var(--border, #d9e0e7); border-radius: 10px; background: #fff; overflow: hidden; }
+.rt-bar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid var(--border, #d9e0e7); background: #f6f8fa; position: sticky; top: 0; z-index: 2; }
+.rt-btn { min-width: 38px; min-height: 38px; padding: 0 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; font: inherit; font-weight: 600; cursor: pointer; }
+.rt-btn:hover { background: #e8edf2; }
+.rt-btn.on { background: #dbeafe; border-color: #93c5fd; }
+.rt-btn:disabled { opacity: .5; cursor: wait; }
+.rich-edit { min-height: 240px; max-height: 70vh; overflow-y: auto; padding: 12px 14px; outline: none; }
+.rich-edit:focus { box-shadow: inset 0 0 0 2px #93c5fd; }
+.rich-edit img.ProseMirror-selectednode { outline: 3px solid #60a5fa; }
+
+/* Admin CMS helpers */
+.cms-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cms-grid .full { grid-column: 1 / -1; }
+.cms-sec { margin: 0 0 18px; padding: 16px; }
+.cms-sec > h3 { margin: 0 0 12px; font-size: 1.05rem; }
+.cms-sec textarea, .cms-sec input:not([type=checkbox]), .cms-sec select, .cms-form input:not([type=checkbox]), .cms-form textarea, .cms-form select { width: 100%; max-width: 100%; }
+.tile-row { display: grid; gap: 8px; grid-template-columns: 1.2fr 1.2fr 1fr; margin-bottom: 8px; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.row-actions .btn { min-height: 38px; }
+.mini { display: inline-block; padding: 1px 8px; border-radius: 999px; background: #e8edf2; font-size: .75rem; margin-left: 6px; vertical-align: middle; }
+.mini.warn { background: #fef3c7; }
+.cms-check { display: flex; gap: 8px; align-items: center; min-height: 38px; }
+.cms-group-title { margin: 22px 0 8px; text-transform: capitalize; }
+.menu-card { padding: 14px; margin-bottom: 12px; }
+.menu-card .cms-grid { grid-template-columns: 1.2fr 1.4fr 1fr; }
+.sticky-save { position: sticky; bottom: 0; padding: 10px 0; background: linear-gradient(transparent, #fff 35%); z-index: 3; }
+@media (max-width: 720px) {
+  .cms-grid, .menu-card .cms-grid, .tile-row { grid-template-columns: 1fr; }
+  .rt-btn { min-width: 42px; min-height: 42px; }
+}
+/* =====================================================
+   RICH TEXT + ADMIN CMS — Royal Blue Premium theme
+   Paste at the VERY END of the stylesheet
+   ===================================================== */
+
+/* ---------- Rich text (public page) ---------- */
+.rich{line-height:1.8;color:var(--ink)}
+.rich h2,.rich h3,.rich h4{
+  color:var(--deep);position:relative;padding-bottom:.35em;
+}
+.rich h2::after{
+  content:"";display:block;width:56px;height:3px;margin-top:.4em;border-radius:3px;
+  background:var(--grad-glow);background-size:200% 100%;
+  animation:gradMove 5s linear infinite;
+  box-shadow:0 0 12px rgba(94,193,255,.7);
+}
+.rich a{color:var(--teal-d);text-decoration:none;background:linear-gradient(var(--blue),var(--blue)) 0 100%/0 2px no-repeat;transition:background-size .45s var(--ease),color .3s}
+.rich a:hover{color:var(--blue);background-size:100% 2px}
+.rich img{
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  border:1px solid var(--line);
+  transition:transform .6s var(--ease),box-shadow .5s;
+}
+.rich img:hover{transform:translateY(-4px) scale(1.01);box-shadow:var(--glow)}
+.rich ul{list-style:none;padding-left:0}
+.rich ul li{position:relative;padding-left:1.6em;transition:transform .35s var(--ease)}
+.rich ul li::before{
+  content:"";position:absolute;left:0;top:.7em;width:9px;height:9px;border-radius:50%;
+  background:var(--grad);box-shadow:0 0 0 3px rgba(94,193,255,.25);
+}
+.rich ul li:hover{transform:translateX(6px)}
+.rich ol li::marker{color:var(--blue);font-weight:700}
+.rich blockquote{
+  position:relative;border-left:0;opacity:1;
+  padding:1em 1.3em;border-radius:16px;
+  background:linear-gradient(160deg,#eef4ff,#e3ecff);
+  color:var(--deep);box-shadow:var(--shadow);
+}
+.rich blockquote::before{
+  content:"";position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:4px;
+  background:var(--grad-glow);background-size:100% 200%;
+  animation:gradMove 5s linear infinite;
+}
+.rich table{
+  border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);background:#fff;
+}
+.rich th,.rich td{border:0;border-bottom:1px solid var(--line)}
+.rich th{background:var(--tint);color:var(--deep);font-weight:600}
+.rich tbody tr{transition:background .25s}
+.rich tbody tr:hover{background:#f4f8ff}
+
+/* ---------- Rich editor box ---------- */
+.rich-box{
+  position:relative;border:1px solid var(--line);border-radius:var(--radius);
+  background:#fff;box-shadow:var(--shadow);overflow:hidden;
+  transition:box-shadow .35s,border-color .3s;
+}
+.rich-box:focus-within{
+  border-color:var(--blue);
+  box-shadow:0 0 0 5px rgba(47,123,255,.15),var(--shadow);
+}
+.rt-bar{
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#f4f8ff,#eaf2ff);
+  backdrop-filter:blur(10px);
+}
+.rt-btn{
+  color:var(--deep);border-radius:10px;
+  transition:transform .3s var(--ease),background .3s,color .3s,box-shadow .3s;
+}
+.rt-btn:hover{
+  background:#e0ecff;color:var(--teal-d);
+  transform:translateY(-2px);
+  box-shadow:0 8px 16px -10px rgba(47,123,255,.8);
+}
+.rt-btn:active{transform:translateY(0) scale(.95)}
+.rt-btn.on{
+  background:linear-gradient(110deg,#2f7bff,#1740b8,#6d5dfc,#2f7bff);
+  background-size:250% 100%;animation:gradMove 6s linear infinite;
+  color:#fff;border-color:transparent;
+  box-shadow:0 10px 22px -8px rgba(47,123,255,.9);
+}
+.rich-edit{background:#fff}
+.rich-edit:focus{box-shadow:inset 0 0 0 2px rgba(47,123,255,.45)}
+.rich-edit img.ProseMirror-selectednode{outline:3px solid var(--sky);box-shadow:var(--glow)}
+
+/* ---------- Admin CMS ---------- */
+.cms-sec{
+  position:relative;background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  transition:box-shadow .4s,border-color .3s,transform .35s var(--ease);
+}
+.cms-sec:hover{box-shadow:var(--shadow-lg);border-color:rgba(47,123,255,.35);transform:translateY(-3px)}
+.cms-sec>h3{
+  color:var(--deep);display:flex;align-items:center;gap:10px;
+}
+.cms-sec>h3::before{
+  content:"";width:6px;height:22px;border-radius:4px;
+  background:var(--grad-glow);background-size:100% 200%;
+  animation:gradMove 5s linear infinite;
+  box-shadow:0 0 12px rgba(94,193,255,.7);
+}
+.cms-group-title{
+  color:var(--deep);font-size:1.25rem;position:relative;padding-bottom:8px;
+}
+.cms-group-title::after{
+  content:"";position:absolute;left:0;bottom:0;width:42px;height:3px;border-radius:3px;
+  background:var(--grad-glow);box-shadow:0 0 12px rgba(94,193,255,.8);
+}
+.menu-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  transition:transform .35s var(--ease),box-shadow .35s,border-color .3s;
+}
+.menu-card:hover{transform:translateX(5px);box-shadow:var(--shadow-lg);border-color:rgba(47,123,255,.35)}
+.tile-row{padding:10px;border-radius:14px;background:#f4f8ff;border:1px solid var(--line)}
+.mini{background:#e6f0ff;color:var(--teal-d);font-weight:600}
+.mini.warn{background:#fff4d6;color:#8a6200}
+.cms-check input{accent-color:var(--blue);width:18px;height:18px;min-height:0}
+.row-actions .btn{min-height:38px}
+
+/* sticky save bar: glassy blue */
+.sticky-save{
+  background:linear-gradient(transparent,rgba(245,249,255,.95) 35%);
+  backdrop-filter:blur(6px);
+}
+.sticky-save .btn-primary{box-shadow:0 14px 30px -10px rgba(47,123,255,.9)}
+
+/* ---------- Header: extra polish (same JSX, no change needed) ---------- */
+.site-header .link-btn{
+  border-radius:999px;transition:background .3s,color .3s,transform .35s var(--ease);
+}
+.site-header .link-btn:hover{background:var(--tint);color:var(--teal-d);transform:translateY(-2px)}
+.site-header .link-btn svg{color:var(--blue)}
+.top-actions .btn-appt{white-space:nowrap}
+.nav-row>a{position:relative}
+.nav-item.active>.nav-row>a{color:var(--ice);text-shadow:0 0 18px rgba(94,193,255,.9)}
+.dropdown li:last-child a{border-bottom:0}
+.dropdown{border-top-color:var(--sky);box-shadow:var(--shadow-lg),0 0 0 1px rgba(94,193,255,.2)}
+
+/* mobile menu: keep aurora feel */
+@media (max-width:980px){
+  .mainnav{
+    background:
+      linear-gradient(rgba(94,193,255,.08) 1px,transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg,rgba(94,193,255,.08) 1px,transparent 1px) 0 0/40px 40px,
+      linear-gradient(160deg,var(--night),var(--night2));
+    animation:none;
+  }
+  .mainnav::after{display:none}
+  .nav-item.active>.nav-row>a{color:var(--sky)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .rich h2::after,.rich blockquote::before,.rt-btn.on,.cms-sec>h3::before{animation:none!important}
+}
+/* =====================================================
+   BP MONITOR LOGO — animated
+   ===================================================== */
+.bp-logo{overflow:visible;filter:drop-shadow(0 6px 10px rgba(47,123,255,.35))}
+
+/* needle swings like a real reading */
+.bp-needle{
+  transform-origin:26px 22px;
+  transform-box:view-box;
+  animation:bpNeedle 3.6s ease-in-out infinite;
+}
+@keyframes bpNeedle{
+  0%{transform:rotate(-70deg)}
+  35%{transform:rotate(55deg)}
+  45%{transform:rotate(48deg)}
+  55%{transform:rotate(58deg)}
+  100%{transform:rotate(-70deg)}
+}
+
+/* pulsing ring around gauge */
+.bp-ring{
+  transform-origin:26px 22px;
+  transform-box:view-box;
+  animation:bpRing 1.8s ease-out infinite;
+}
+@keyframes bpRing{
+  0%{transform:scale(1);opacity:.7}
+  100%{transform:scale(1.35);opacity:0}
+}
+
+/* bulb squeezes in rhythm with the needle */
+.bp-bulb{
+  transform-origin:48px 42px;
+  transform-box:view-box;
+  animation:bpBulb 3.6s ease-in-out infinite;
+}
+@keyframes bpBulb{
+  0%,100%{transform:scale(1)}
+  10%{transform:scale(.8,.88)}
+  20%{transform:scale(1.08)}
+  30%{transform:scale(1)}
+}
+
+/* ECG line draws itself repeatedly */
+.bp-ecg{
+  stroke-dasharray:60;
+  stroke-dashoffset:60;
+  animation:bpEcg 2.4s linear infinite;
+}
+@keyframes bpEcg{
+  0%{stroke-dashoffset:60;opacity:1}
+  70%{stroke-dashoffset:0;opacity:1}
+  100%{stroke-dashoffset:0;opacity:0}
+}
+
+/* tube gently flexes */
+.bp-tube{stroke-dasharray:3 0;animation:bpTube 3.6s ease-in-out infinite}
+@keyframes bpTube{0%,100%{stroke-width:2.2}20%{stroke-width:3}}
+
+/* hover: faster, brighter */
+.logo:hover .bp-needle{animation-duration:1.6s}
+.logo:hover .bp-logo{filter:drop-shadow(0 8px 16px rgba(94,193,255,.8))}
+
+/* text colour to match blue theme */
+.logo-text{
+  background:linear-gradient(100deg,#071a3d,#1740b8,#2f7bff,#1740b8,#071a3d);
+  background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gradMove 7s linear infinite;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .bp-needle,.bp-ring,.bp-bulb,.bp-ecg,.bp-tube,.logo-text{animation:none!important}
+  .bp-ecg{stroke-dashoffset:0}
+}
+/* ---------- Page banner (M A Rashid style full-width) ---------- */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.page-banner{position:relative;background:var(--night);overflow:hidden}
+.page-banner img{display:block;width:100%;height:auto;min-height:150px;max-height:560px;object-fit:cover}
+.page-banner::after{content:"";position:absolute;left:50%;bottom:-1px;width:60px;height:28px;transform:translateX(-50%);background:#fafcff;clip-path:polygon(50% 0,0 100%,100% 100%)}
+.page-banner + .info-layout{padding-top:64px}
+@media (max-width:680px){
+  .page-banner::after{width:40px;height:20px}
+  .page-banner + .info-layout{padding-top:40px}
+}
