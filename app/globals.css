@@ -200,14 +200,16 @@ ul{margin:0;padding:0;list-style:none}
 /* ---- AUTO-RUNNING MARQUEE (right -> left) ----
    Usage: <div className="carousel is-marquee"><div className="car-track marquee">
           {items}{items}  </div></div>     (render the list TWICE)          */
-.carousel.is-marquee{overflow:hidden;position:relative;
+.carousel.is-marquee{overflow-x:auto;overflow-y:hidden;position:relative;
   /* full-bleed: break out of .container so cards run edge to edge of the screen */
   width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+  /* Carousel.js auto-scrolls this box (same right->left loop). User swipe/scroll kora jay; vertical page scroll ageri moto cholbe */
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
   -webkit-mask:linear-gradient(90deg,transparent 0,#000 3%,#000 97%,transparent 100%);mask:linear-gradient(90deg,transparent 0,#000 3%,#000 97%,transparent 100%)}
+.carousel.is-marquee::-webkit-scrollbar{display:none}
 .carousel.is-marquee .car-btn{display:none}
-.car-track.marquee{display:flex;gap:0;width:max-content;overflow:visible;scroll-snap-type:none;padding:18px 0 34px;animation:marquee var(--mq,50s) linear infinite;will-change:transform}
+.car-track.marquee{display:flex;gap:0;width:max-content;overflow:visible;scroll-snap-type:none;padding:18px 0 34px}
 .car-track.marquee .car-item{flex:0 0 clamp(320px,29vw,430px);margin-right:28px;scroll-snap-align:none}
-.car-track.marquee:hover,.car-track.marquee:focus-within{animation-play-state:paused}
 .quote{position:relative;margin:0;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-radius:22px;padding:32px 26px;text-align:center;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;box-shadow:var(--shadow)}
 .quote:hover{box-shadow:var(--shadow-lg)}
 .quote>p{color:var(--teal-d);font-size:1.5rem;font-weight:700;margin-bottom:8px}
@@ -493,10 +495,8 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-s
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .js .rv{opacity:1;transform:none;filter:none}
-  /* marquee fallback: becomes a normal swipeable row */
-  .carousel.is-marquee{overflow:visible;-webkit-mask:none;mask:none}
-  .car-track.marquee{width:auto;overflow-x:auto;scroll-snap-type:x mandatory}
-  .car-track.marquee .car-item{scroll-snap-align:start}
+  /* marquee: Carousel.js auto-run kore na, shudhu manually swipe kora jay */
+  .carousel.is-marquee{-webkit-mask:none;mask:none}
 }
 /* =====================================================
    HOME-HERO AURORA THEME — apply to all blue sections
@@ -809,7 +809,7 @@ img,svg,video,iframe{max-width:100%}
   .car-item{flex-basis:86%}
   .car-btn{display:none}
   /* marquee on phone: big readable cards, a little faster */
-  .car-track.marquee{padding:12px 0 24px;animation-duration:calc(var(--mq,50s)*.8)}
+  .car-track.marquee{padding:12px 0 24px}
   .car-track.marquee .car-item{flex:0 0 min(84vw,340px);margin-right:16px}
   .quote{padding:24px 18px}
   .quote>p{font-size:1.3rem}

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Icon from './Icons';
 import { SITE } from '@/lib/data';
 import { API_URL } from '@/lib/config';
@@ -10,8 +11,15 @@ const GREETING = {
   text: 'আসসালামু আলাইকুম! আমি **Life Care Hospital**-এর AI Assistant।\nডাক্তার খুঁজে দেওয়া, অ্যাপয়েন্টমেন্ট নেওয়া, বা হাসপাতালের যেকোনো তথ্য জানতে আমাকে জিজ্ঞেস করুন।'
 };
 const CHIPS = ['আমার সমস্যার জন্য ডাক্তার খুঁজে দিন', 'অ্যাপয়েন্টমেন্ট নিতে চাই', 'হাসপাতালের সেবাসমূহ', 'অ্যাম্বুলেন্স সার্ভিস'];
-const YES = /^(ha+|হ্যাঁ|হ্যা|হা|yes|y|ok|okay|confirm|confirmed|kor(o|un)|book kor(o|un)|thik ache|ঠিক আছে|কনফার্ম)[\s.!।]*$/i;
+
+// Pending booking card thakle shudhu spashto "ha/confirm" likhle booking hobe.
+// "ok", "korun" er moto onno kothar shathe mile jay, tai ber kora hoyeche.
+const YES = /^(ha+|হ্যাঁ|হ্যা|হা|yes|confirm|confirmed|thik ache|ঠিক আছে|কনফার্ম)[\s.!।]*$/i;
 const NO = /^(na|no|nah|cancel|batil|বাতিল|না)[\s.!।]*$/i;
+
+// Server theke asha page-action gulo client e-o abar check kora hoy
+const SAFE_PATH = /^\/(?!\/)[\w\-/?=&%.]*$/;
+const SAFE_TEL = /^\+?\d{3,15}$/;
 
 // Login token (jodi thake) - booking user er account e link korar jonno. Na thakleo guest hishebe kaj kore.
 function authToken() {
@@ -24,13 +32,20 @@ function authToken() {
   return undefined;
 }
 
-// **bold**, [label](/path) ar [label](tel:...) - onno kichu HTML hishebe boshbe na
+// **bold**, [label](/path) ar [label](tel:...) - onno kichu HTML hishebe boshbe na.
+// Internal link e page reload hoy na (Next router).
 function Inline({ text }) {
+  const router = useRouter();
   const parts = String(text).split(/(\*\*[^*]+\*\*|\[[^\]]+\]\((?:\/(?!\/)[^)\s]*|tel:[+\d-]+)\))/g);
   return parts.map((p, i) => {
     if (/^\*\*[^*]+\*\*$/.test(p)) return <strong key={i}>{p.slice(2, -2)}</strong>;
     const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (m) return <a key={i} href={m[2]}>{m[1]}</a>;
+    if (m) {
+      const href = m[2];
+      return (
+        <a key={i} href={href} onClick={(e) => { if (href.startsWith('/') && SAFE_PATH.test(href)) { e.preventDefault(); router.push(href); } }}>{m[1]}</a>
+      );
+    }
     return <span key={i}>{p}</span>;
   });
 }
@@ -81,7 +96,25 @@ function BookingCard({ b, onConfirm, onCancel }) {
   );
 }
 
+// AI er pathano page-action: "page kholo" ba "call korun" button
+function ActionButtons({ actions, onGo }) {
+  return (
+    <div className="lcc-acts">
+      {actions.map((a, i) => {
+        if (a?.type === 'call' && SAFE_TEL.test(String(a.tel || ''))) {
+          return <a key={i} className="lcc-act call" href={`tel:${a.tel}`}>{String(a.label || 'Call').slice(0, 40)}</a>;
+        }
+        if (a?.type === 'navigate' && SAFE_PATH.test(String(a.path || ''))) {
+          return <button key={i} type="button" className="lcc-act" onClick={() => onGo(a.path)}>{String(a.label || 'Page ta kholun').slice(0, 40)}</button>;
+        }
+        return null;
+      })}
+    </div>
+  );
+}
+
 export default function ChatWidget() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([GREETING]);
   const [input, setInput] = useState('');
@@ -105,6 +138,14 @@ export default function ChatWidget() {
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [messages, loading, open]);
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 50); }, [open]);
 
+  // textarea input onujayi boro hoy (max 96px)
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
+  }, [input, open]);
+
   const add = (m) => setMessages((p) => [...p, m]);
   const patch = (idx, b) => setMessages((p) => p.map((m, i) => (i === idx ? { ...m, booking: { ...m.booking, ...b } } : m)));
   const pendingIdx = () => {
@@ -112,6 +153,13 @@ export default function ChatWidget() {
     for (let i = a.length - 1; i >= 0; i--) if (a[i].booking) return a[i].booking.state === 'ready' ? i : -1;
     return -1;
   };
+
+  // Page e jao. Mobile e panel page dheke dey, tai bondho kore dei.
+  const go = useCallback((path) => {
+    if (!SAFE_PATH.test(String(path || ''))) return;
+    if (typeof window !== 'undefined' && window.innerWidth <= 640) setOpen(false);
+    router.push(path);
+  }, [router]);
 
   const confirm = useCallback(async (idx) => {
     const b = ref.current[idx]?.booking;
@@ -166,11 +214,16 @@ export default function ChatWidget() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) throw new Error(data.message || 'এখন উত্তর দিতে পারছি না।');
+      const actions = Array.isArray(data.actions) ? data.actions.slice(0, 3) : [];
       add({
         role: 'model', text: data.reply,
         doctors: data.doctors?.length ? data.doctors : undefined,
-        booking: data.booking?.token ? { ...data.booking, state: 'ready' } : undefined
+        booking: data.booking?.token ? { ...data.booking, state: 'ready' } : undefined,
+        actions: actions.length ? actions : undefined
       });
+      // User explicitly "niye jao" bolle (auto=true) kichukkhon por page e jay
+      const auto = actions.find((a) => a?.type === 'navigate' && a.auto === true);
+      if (auto) setTimeout(() => go(auto.path), 900);
     } catch (e) {
       add({ role: 'model', error: true, text: e.message || 'কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।' });
     } finally {
@@ -179,7 +232,7 @@ export default function ChatWidget() {
   };
 
   const bookDoctor = (d) => send(`${d.name} (${d.department}) এর অ্যাপয়েন্টমেন্ট নিতে চাই`);
-  const onKey = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
+  const onKey = (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } };
   const reset = () => { setMessages([GREETING]); try { sessionStorage.removeItem(STORE_KEY); } catch { /* ignore */ } };
 
   return (
@@ -198,12 +251,13 @@ export default function ChatWidget() {
                 <div className={`lcc-bubble${m.error ? ' err' : ''}`}><Rich text={m.text} /></div>
                 {m.doctors?.map((d) => <DoctorCard key={d.id} d={d} onBook={bookDoctor} />)}
                 {m.booking && <BookingCard b={m.booking} onConfirm={() => confirm(i)} onCancel={() => cancel(i)} />}
+                {m.actions && <ActionButtons actions={m.actions} onGo={go} />}
               </div>
             ))}
             {messages.length === 1 && !loading && (
               <div className="lcc-chips">{CHIPS.map((c) => <button key={c} type="button" onClick={() => send(c)}>{c}</button>)}</div>
             )}
-            {loading && <div className="lcc-row bot"><div className="lcc-bubble lcc-typing"><i /><i /><i /></div></div>}
+            {loading && <div className="lcc-row bot"><div className="lcc-bubble lcc-typing" aria-label="উত্তর লেখা হচ্ছে"><i /><i /><i /></div></div>}
             <div ref={endRef} />
           </div>
           <footer>
@@ -225,53 +279,67 @@ export default function ChatWidget() {
   );
 }
 
+// Rong/shape ek jayga theke bodlano jay: shudhu --lcc-* variable gulo change korun.
+// font-family: inherit, tai layout.js e deya site font-i chat e-o apply hoy.
 const CSS = `
-.lcc-root{position:fixed;right:18px;bottom:18px;z-index:9999;font-family:inherit;color:#0f172a}
-.lcc-fab{display:flex;align-items:center;gap:10px;border:0;cursor:pointer;background:#2563eb;color:#fff;border-radius:999px;padding:6px 6px 6px 18px;box-shadow:0 8px 24px rgba(37,99,235,.4);font-weight:600;font-size:14px;margin-left:auto}
-.lcc-fab-i{width:48px;height:48px;border-radius:50%;background:#1d4ed8;display:grid;place-items:center}
+.lcc-root{--lcc-brand:#1d4ed8;--lcc-brand-dark:#1e3a8a;--lcc-brand-soft:#eff6ff;--lcc-brand-line:#bfdbfe;--lcc-ink:#0f172a;--lcc-sub:#475569;--lcc-mute:#64748b;--lcc-line:#e2e8f0;--lcc-bg:#f8fafc;--lcc-danger:#dc2626;--lcc-ok:#15803d;
+position:fixed;right:18px;bottom:18px;z-index:9999;font-family:inherit;color:var(--lcc-ink)}
+.lcc-root button{font-family:inherit}
+.lcc-root :focus-visible{outline:2px solid var(--lcc-brand);outline-offset:2px}
+.lcc-fab{display:flex;align-items:center;gap:10px;border:0;cursor:pointer;background:var(--lcc-brand);color:#fff;border-radius:999px;padding:6px 6px 6px 18px;box-shadow:0 8px 24px rgba(29,78,216,.38);font-weight:600;font-size:14px;margin-left:auto}
+.lcc-fab-i{width:48px;height:48px;border-radius:50%;background:var(--lcc-brand-dark);display:grid;place-items:center}
 .lcc-fab:not(:has(.lcc-fab-l)){padding:6px}
-.lcc-panel{position:absolute;right:0;bottom:70px;width:min(390px,calc(100vw - 24px));height:min(620px,calc(100dvh - 110px));background:#fff;border-radius:16px;box-shadow:0 12px 48px rgba(15,23,42,.28);display:flex;flex-direction:column;overflow:hidden;border:1px solid #e2e8f0}
-.lcc-panel header{display:flex;align-items:center;gap:6px;padding:12px 12px 12px 16px;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff}
+.lcc-panel{position:absolute;right:0;bottom:70px;width:min(400px,calc(100vw - 24px));height:min(640px,calc(100dvh - 110px));background:#fff;border-radius:16px;box-shadow:0 14px 48px rgba(15,23,42,.28);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--lcc-line);animation:lccin .18s ease-out}
+@keyframes lccin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.lcc-panel header{display:flex;align-items:center;gap:6px;padding:12px 12px 12px 16px;background:linear-gradient(135deg,var(--lcc-brand-dark),var(--lcc-brand));color:#fff}
 .lcc-panel header>div{flex:1;display:flex;flex-direction:column;min-width:0}
-.lcc-panel header small{opacity:.85;font-size:11px;line-height:1.3}
+.lcc-panel header b{font-size:15px;font-weight:600}
+.lcc-panel header small{opacity:.88;font-size:11.5px;line-height:1.35}
 .lcc-panel header button{background:rgba(255,255,255,.15);border:0;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;display:grid;place-items:center;font-size:16px}
-.lcc-msgs{flex:1;overflow-y:auto;padding:14px;background:#f8fafc;display:flex;flex-direction:column;gap:10px}
+.lcc-panel header button:hover{background:rgba(255,255,255,.25)}
+.lcc-msgs{flex:1;overflow-y:auto;padding:14px;background:var(--lcc-bg);display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
 .lcc-row{display:flex;flex-direction:column;gap:8px;max-width:92%}
 .lcc-row.me{align-self:flex-end;align-items:flex-end}
 .lcc-row.bot{align-self:flex-start}
-.lcc-bubble{padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.55;word-break:break-word}
+.lcc-bubble{padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.6;word-break:break-word}
 .lcc-bubble p{margin:0}.lcc-bubble p+p{margin-top:4px}
-.lcc-row.bot .lcc-bubble{background:#fff;border:1px solid #e2e8f0;border-bottom-left-radius:4px}
-.lcc-row.me .lcc-bubble{background:#2563eb;color:#fff;border-bottom-right-radius:4px}
+.lcc-row.bot .lcc-bubble{background:#fff;border:1px solid var(--lcc-line);border-bottom-left-radius:4px}
+.lcc-row.me .lcc-bubble{background:var(--lcc-brand);color:#fff;border-bottom-right-radius:4px}
 .lcc-bubble.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
-.lcc-bubble a{color:#2563eb;text-decoration:underline}.lcc-row.me .lcc-bubble a{color:#fff}
+.lcc-bubble a{color:var(--lcc-brand);text-decoration:underline;text-underline-offset:2px}.lcc-row.me .lcc-bubble a{color:#fff}
 .lcc-typing{display:flex;gap:4px;padding:13px 14px}
 .lcc-typing i{width:7px;height:7px;border-radius:50%;background:#94a3b8;animation:lccb 1.1s infinite}
 .lcc-typing i:nth-child(2){animation-delay:.15s}.lcc-typing i:nth-child(3){animation-delay:.3s}
 @keyframes lccb{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
 .lcc-chips{display:flex;flex-wrap:wrap;gap:8px}
-.lcc-chips button{background:#fff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:999px;padding:7px 12px;font-size:13px;cursor:pointer}
-.lcc-chips button:hover{background:#eff6ff}
-.lcc-doc{display:flex;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px;width:100%}
-.lcc-doc img,.lcc-doc-ph{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;background:#dbeafe;color:#1d4ed8;display:grid;place-items:center;font-weight:700}
+.lcc-chips button{background:#fff;border:1px solid var(--lcc-brand-line);color:var(--lcc-brand);border-radius:999px;padding:7px 12px;font-size:13px;cursor:pointer}
+.lcc-chips button:hover{background:var(--lcc-brand-soft)}
+.lcc-doc{display:flex;gap:10px;background:#fff;border:1px solid var(--lcc-line);border-radius:12px;padding:10px;width:100%}
+.lcc-doc img,.lcc-doc-ph{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;background:#dbeafe;color:var(--lcc-brand);display:grid;place-items:center;font-weight:700}
 .lcc-doc-b{display:flex;flex-direction:column;gap:1px;font-size:13px;min-width:0}
-.lcc-doc-b span,.lcc-doc-b small{color:#475569}.lcc-doc-b small{font-size:12px}
-.lcc-doc-b button{align-self:flex-start;margin-top:6px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
-.lcc-book{background:#fff;border:2px solid #2563eb;border-radius:12px;padding:12px;width:100%;font-size:13px}
-.lcc-book h4{margin:0 0 8px;font-size:14px;color:#1e40af}
+.lcc-doc-b span,.lcc-doc-b small{color:var(--lcc-sub)}.lcc-doc-b small{font-size:12px}
+.lcc-doc-b button{align-self:flex-start;margin-top:6px;background:var(--lcc-brand-soft);color:var(--lcc-brand);border:1px solid var(--lcc-brand-line);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
+.lcc-doc-b button:hover{background:#dbeafe}
+.lcc-book{background:#fff;border:2px solid var(--lcc-brand);border-radius:12px;padding:12px;width:100%;font-size:13px}
+.lcc-book h4{margin:0 0 8px;font-size:14px;color:var(--lcc-brand-dark)}
 .lcc-book dl{margin:0;display:grid;gap:4px}.lcc-book dl div{display:flex;gap:8px}
-.lcc-book dt{width:64px;color:#64748b;flex:none}.lcc-book dd{margin:0;font-weight:600;word-break:break-word}
+.lcc-book dt{width:64px;color:var(--lcc-mute);flex:none}.lcc-book dd{margin:0;font-weight:600;word-break:break-word}
 .lcc-book-btns{display:flex;gap:8px;margin-top:12px}
 .lcc-book-btns button{flex:1;border-radius:8px;padding:9px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid #cbd5e1;background:#fff;color:#334155}
 .lcc-book-btns .lcc-yes{background:#16a34a;border-color:#16a34a;color:#fff}
 .lcc-book-btns button:disabled{opacity:.6;cursor:wait}
-.lcc-ok{color:#15803d;margin:10px 0 0}.lcc-err{color:#b91c1c;margin:8px 0 0}.lcc-muted{color:#64748b;margin:10px 0 0}
-.lcc-panel footer{border-top:1px solid #e2e8f0;background:#fff;padding:10px 12px 8px}
+.lcc-ok{color:var(--lcc-ok);margin:10px 0 0}.lcc-err{color:#b91c1c;margin:8px 0 0}.lcc-muted{color:var(--lcc-mute);margin:10px 0 0}
+.lcc-acts{display:flex;flex-wrap:wrap;gap:8px}
+.lcc-act{display:inline-flex;align-items:center;justify-content:center;background:var(--lcc-brand);color:#fff;border:0;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;line-height:1.2}
+.lcc-act:hover{background:var(--lcc-brand-dark)}
+.lcc-act.call{background:var(--lcc-danger)}.lcc-act.call:hover{background:#b91c1c}
+.lcc-panel footer{border-top:1px solid var(--lcc-line);background:#fff;padding:10px 12px 8px}
 .lcc-input{display:flex;gap:8px;align-items:flex-end}
-.lcc-input textarea{flex:1;resize:none;border:1px solid #cbd5e1;border-radius:12px;padding:9px 12px;font:inherit;font-size:14px;max-height:96px;outline:none}
-.lcc-input textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-.lcc-input button{width:40px;height:40px;border-radius:50%;border:0;background:#2563eb;color:#fff;cursor:pointer;display:grid;place-items:center;flex:none}
+.lcc-input textarea{flex:1;resize:none;border:1px solid #cbd5e1;border-radius:12px;padding:9px 12px;font:inherit;font-size:14px;line-height:1.45;max-height:96px;outline:none}
+.lcc-input textarea:focus{border-color:var(--lcc-brand);box-shadow:0 0 0 3px rgba(29,78,216,.15)}
+.lcc-input button{width:40px;height:40px;border-radius:50%;border:0;background:var(--lcc-brand);color:#fff;cursor:pointer;display:grid;place-items:center;flex:none}
 .lcc-input button:disabled{background:#cbd5e1;cursor:not-allowed}
-.lcc-sos{margin:6px 2px 0;font-size:11.5px;color:#64748b;text-align:center}.lcc-sos a{color:#dc2626;font-weight:600}
+.lcc-sos{margin:6px 2px 0;font-size:11.5px;color:var(--lcc-mute);text-align:center}.lcc-sos a{color:var(--lcc-danger);font-weight:600}
 @media (max-width:480px){.lcc-root{right:12px;bottom:12px}.lcc-panel{bottom:66px}}
+@media (prefers-reduced-motion:reduce){.lcc-panel,.lcc-typing i{animation:none}.lcc-msgs{scroll-behavior:auto}}
 `;

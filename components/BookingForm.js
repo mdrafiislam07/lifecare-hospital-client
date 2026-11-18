@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuth } from './AuthProvider';
@@ -7,13 +7,20 @@ import { Alert, Field } from './Ui';
 import { SPECIALTIES } from '@/lib/data';
 import { useBotGuard } from './BotGuard';
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^\d{2}:\d{2}$/;
+// Bangladesh (UTC+6) er aajker date. toISOString() UTC dey, tai raat 12-bhor 6 ta te gotokal dekhato.
+const dhakaToday = () => new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10);
+
 export default function BookingForm() {
   const sp = useSearchParams();
   const { token, user } = useAuth() || {};
   const [doctors, setDoctors] = useState([]);
   const [dept, setDept] = useState('');
   const [doctor, setDoctor] = useState(sp.get('doctor') || '');
-  const [date, setDate] = useState('');
+  // AI chat theke ashle ?doctor=&date=&slot= diye pre-fill hoy
+  const [date, setDate] = useState(DATE_RE.test(sp.get('date') || '') ? sp.get('date') : '');
+  const preSlot = useRef(TIME_RE.test(sp.get('slot') || '') ? sp.get('slot') : '');
   const [slots, setSlots] = useState(null);
   const [slotMsg, setSlotMsg] = useState('');
   const [timeSlot, setTimeSlot] = useState('');
@@ -22,7 +29,7 @@ export default function BookingForm() {
   const [err, setErr] = useState('');
   const [done, setDone] = useState(null);
   const bot = useBotGuard();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dhakaToday();
 
   useEffect(() => { if (user) setF((x) => ({ ...x, patientName: x.patientName || user.name, phone: x.phone || user.phone || '' })); }, [user]);
 
@@ -33,7 +40,18 @@ export default function BookingForm() {
   useEffect(() => {
     setSlots(null); setTimeSlot(''); setSlotMsg('');
     if (!doctor || !date) return;
-    api(`/doctors/${doctor}/slots?date=${date}`).then((d) => { setSlots(d.slots); if (!d.available) setSlotMsg(d.message); }).catch((e) => setErr(e.message));
+    let alive = true;
+    api(`/doctors/${doctor}/slots?date=${date}`).then((d) => {
+      if (!alive) return;
+      setSlots(d.slots);
+      if (!d.available) setSlotMsg(d.message);
+      if (preSlot.current) { // chat theke ashle slot ta auto select (jodi ekhono khali thake)
+        const s = d.slots?.find((x) => x.time === preSlot.current && !x.booked);
+        if (s) setTimeSlot(s.time);
+        preSlot.current = '';
+      }
+    }).catch((e) => alive && setErr(e.message));
+    return () => { alive = false; };
   }, [doctor, date]);
 
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
