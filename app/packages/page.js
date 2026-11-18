@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { serverGet } from '@/lib/api';
+import { getSettings } from '@/lib/content';
 import { FALLBACK_PACKAGES } from '@/lib/data';
 import { PageHero } from '@/components/Ui';
 import Icon from '@/components/Icons';
@@ -8,10 +9,10 @@ export const metadata = { title: 'Checkup Packages' };
 export const revalidate = 60;
 
 export default async function Page() {
-  const { items } = await serverGet('/packages', { items: FALLBACK_PACKAGES });
+  const [{ items }, site] = await Promise.all([serverGet('/packages', { items: FALLBACK_PACKAGES }), getSettings()]);
   return (
     <>
-      <PageHero title="Checkup Packages" text="Health check-up package based on your age and needs." />
+      <PageHero title="Checkup Packages" text="Health check-up package based on your age and needs." banner={site.banners?.packages?.url} />
       <section className="container section">
         {items.length === 0 ? (
           <p className="muted center">Checkup package shiggroi add kora hobe. Bistarito jante call korun.</p>
