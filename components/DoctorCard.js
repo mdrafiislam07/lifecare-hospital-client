@@ -1,27 +1,38 @@
 import Link from 'next/link';
 import Icon from './Icons';
 import { cld } from '@/lib/img';
+import '@/styles/doctors.css';
 
-const initials = (n) => n.replace(/^(Prof\.|Dr\.|Dr)\s*/i, '').split(' ').slice(0, 2).map((w) => w[0]).join('');
+const initials = (n = '') => n.replace(/^(Prof\.|Dr\.|Dr)\s*/i, '').split(' ').slice(0, 2).map((w) => w[0]).join('');
 
 export default function DoctorCard({ d }) {
-  const book = d._id?.startsWith('f') ? '/appointment' : `/appointment?doctor=${d._id}`;
+  // demo (fallback) doctor der real profile nai
+  const real = /^[a-f\d]{24}$/i.test(String(d._id || ''));
+  const profile = real ? `/doctors/${d._id}` : '/doctors';
+  const book = real ? `/appointment?doctor=${d._id}` : '/appointment';
   return (
-    <article className="doc-card">
-      <div className="doc-top">
-        {d.photo ? <img src={cld(d.photo, 'w_200,h_200,c_fill,g_face')} alt={d.name} loading="lazy" width="84" height="84" className="doc-photo" /> : <div className="doc-avatar" aria-hidden="true">{initials(d.name)}</div>}
-        <span className="chip">{d.department}</span>
+    <article className="dc-card">
+      <Link href={profile} className="dc-media" aria-label={`${d.name} - view profile`}>
+        {d.photo
+          ? <img src={cld(d.photo, 'w_700,h_740,c_fill,g_face,q_auto,f_auto')} alt={d.name} loading="lazy" />
+          : <span className="dc-ini" aria-hidden="true">{initials(d.name)}</span>}
+        {d.department && <span className="dc-dept">{d.department}</span>}
+        {d.fee ? <span className="dc-fee">Fee ৳{d.fee}</span> : null}
+      </Link>
+      <div className="dc-body">
+        <h3 className="dc-name"><Link href={profile}>{d.name}</Link></h3>
+        {d.nameBn && <p className="bn dc-bn">{d.nameBn}</p>}
+        {d.designation && <p className="dc-desig">{d.designation}</p>}
+        {d.degrees && <p className="dc-deg">{d.degrees}</p>}
+        <ul className="dc-meta">
+          {d.days?.length > 0 && <li><Icon name="calendar" size={16} /> {d.days.join(', ')}</li>}
+          {d.startTime && <li><Icon name="clock" size={16} /> {d.startTime} – {d.endTime}</li>}
+        </ul>
+        <div className="dc-actions">
+          <Link href={profile} className="btn btn-outline">View Profile</Link>
+          <Link href={book} className="btn btn-primary">Book Now</Link>
+        </div>
       </div>
-      <h3>{d.name}</h3>
-      {d.nameBn && <p className="bn doc-bn">{d.nameBn}</p>}
-      <p className="doc-desig">{d.designation}</p>
-      {d.degrees && <p className="doc-deg">{d.degrees}</p>}
-      <ul className="doc-meta">
-        {d.days?.length > 0 && <li><Icon name="calendar" size={16} /> {d.days.join(', ')}</li>}
-        <li><Icon name="clock" size={16} /> {d.startTime} – {d.endTime}</li>
-        {d.fee ? <li><Icon name="check" size={16} /> Fee: ৳{d.fee}</li> : null}
-      </ul>
-      <Link href={book} className="btn btn-primary btn-block">Book appointment</Link>
     </article>
   );
 }

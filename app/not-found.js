@@ -4,7 +4,7 @@ export default function NotFound() {
     <section className="container center-page">
       <h1>Page not found</h1>
       <p>this page does not exist</p>
-      <Link href="/" className="btn btn-primary">Home e jan</Link>
+      <Link href="/" className="btn btn-primary">Go Home Page</Link>
     </section>
   );
 }

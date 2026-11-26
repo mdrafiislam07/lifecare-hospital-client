@@ -1,0 +1,88 @@
+/* ============ Doctor card (home carousel + list) — standard size ============ */
+.dc-card{position:relative;display:flex;flex-direction:column;height:100%;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s,border-color .25s}
+.dc-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:#bcd0f3}
+.dc-card .dc-media{position:relative;display:block;height:205px;margin:12px 12px 0;border-radius:12px;background:linear-gradient(160deg,#eaf2ff,#cfe0fb);overflow:hidden}
+.dc-card .dc-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .5s ease}
+.dc-card:hover .dc-media img{transform:scale(1.04)}
+.dc-card .dc-ini{display:flex;width:100%;height:100%;align-items:center;justify-content:center;font:800 2.4rem/1 var(--font-head);color:var(--blue);letter-spacing:.04em}
+.dc-dept{position:absolute;left:8px;top:8px;z-index:1;max-width:calc(100% - 16px);background:rgba(255,255,255,.96);color:var(--teal-d);padding:3px 10px;border-radius:999px;font:700 .7rem/1.4 var(--font-head);box-shadow:0 3px 10px rgba(15,60,158,.16);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc-fee{position:absolute;right:8px;bottom:8px;z-index:1;background:var(--deep);color:#fff;padding:3px 10px;border-radius:999px;font:700 .72rem/1.4 var(--font-head);box-shadow:0 3px 10px rgba(15,60,158,.3)}
+.dc-body{display:flex;flex-direction:column;flex:1;padding:12px 16px 16px}
+.dc-name{font-size:1.05rem;margin:0 0 2px;line-height:1.3}
+.dc-name a{color:var(--deep)}.dc-name a:hover{color:var(--blue)}
+.dc-bn{margin:0;color:var(--deep);font-weight:600;font-size:.88rem;line-height:1.4}
+.dc-desig{margin:4px 0 0;color:var(--blue);font-weight:600;font-size:.88rem;line-height:1.35}
+.dc-deg{margin:4px 0 8px;color:var(--muted);font-size:.82rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dc-meta{display:grid;gap:4px;margin:auto 0 10px;padding-top:8px;border-top:1px dashed #d5e0f3;font-size:.82rem;color:var(--ink)}
+.dc-meta li{display:flex;gap:7px;align-items:center;line-height:1.3}.dc-meta svg{color:var(--blue);flex:none;width:14px;height:14px}
+.dc-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dc-actions .btn{min-height:36px;padding:0 6px;font-size:.82rem;line-height:1.1;justify-content:center;text-align:center;border-radius:8px;white-space:nowrap}
+
+/* home carousel e card er size (globals.css er boro width override) */
+.car-track.marquee .car-item.doc-item{flex:0 0 306px;margin-right:18px}
+
+/* ============ Doctors list page ============ */
+.dc-section{padding-top:48px}
+.dc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
+.dc-grid.is-loading{opacity:.55;pointer-events:none;transition:opacity .2s}
+.dc-count{margin:0 0 18px;color:var(--muted);font-weight:600}
+.dc-empty{text-align:center;padding:50px 16px;color:var(--muted);background:var(--tint);border-radius:16px}
+.dc-skel{height:440px;border-radius:16px;background:linear-gradient(100deg,#eef3fb 30%,#f8fbff 50%,#eef3fb 70%);background-size:200% 100%;animation:dcSk 1.2s linear infinite}
+@keyframes dcSk{to{background-position:-200% 0}}
+.dc-section .chip-btn small{opacity:.7}
+
+/* ============ Doctor profile page ============ */
+.dp-wrap{background:linear-gradient(180deg,#eaf2ff,#fff 460px);padding:28px 0 80px}
+.dp-crumb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:20px;font-size:.92rem;color:var(--muted)}
+.dp-crumb b{color:var(--deep)}
+.dp-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:28px;align-items:start}
+.dp-photo{position:sticky;top:90px;background:#fff;border:1px solid var(--line);border-radius:26px;padding:12px;box-shadow:var(--shadow-lg)}
+.dp-frame{aspect-ratio:4/5;border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#eaf2ff,#cfe0fb)}
+.dp-frame img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+.dp-photo-cta{display:grid;gap:10px;padding:14px 4px 4px}
+.dp-photo-cta .btn{min-height:48px;justify-content:center}
+.dp-main{background:#fff;border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:36px}
+.dp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.dp-tag{display:inline-flex;align-items:center;gap:6px;background:#e8f0fd;color:var(--teal-d);padding:5px 14px;border-radius:999px;font:700 .8rem var(--font-head)}
+.dp-name{font-size:clamp(1.7rem,3vw,2.4rem);margin:14px 0 4px}
+.dp-bn{margin:0 0 4px;font-weight:600;color:var(--deep);font-size:1.15rem}
+.dp-desig{margin:6px 0 0;color:var(--blue);font-weight:700;font-size:1.1rem}
+.dp-deg{margin:6px 0 0;color:var(--muted);max-width:640px}
+.dp-book{white-space:nowrap}
+.dp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin:28px 0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--tint)}
+.dp-stat{padding:18px 20px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.dp-stat:last-child{border-right:0}
+.dp-stat small{color:var(--muted);font-weight:600}
+.dp-stat b{font:700 1.05rem var(--font-head);color:var(--deep)}
+.dp-h{display:flex;align-items:center;gap:10px;font-size:1.2rem;margin:0 0 14px}
+.dp-h::before{content:"";width:5px;height:22px;border-radius:4px;background:var(--blue)}
+.dp-days-box{margin-bottom:28px}
+.dp-days{display:flex;flex-wrap:wrap;gap:8px}
+.dp-day{min-width:56px;text-align:center;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#9aa7bd;font:600 .92rem var(--font-head)}
+.dp-day.on{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 6px 14px rgba(31,95,214,.28)}
+.dp-cols{display:grid;grid-template-columns:1.6fr 1fr;gap:36px;padding-top:26px;border-top:1px solid var(--line)}
+.dp-about{color:#46546f;line-height:1.85;margin:0 0 1em}
+.dp-list{display:grid;gap:12px}
+.dp-list li{display:flex;gap:10px;align-items:flex-start;color:var(--ink)}
+.dp-list svg{color:var(--blue);flex:none;margin-top:3px}
+.dp-related{margin-top:70px}
+
+@media (max-width:980px){
+  .dp-grid{grid-template-columns:1fr}
+  .dp-photo{position:static;max-width:420px;width:100%;margin:0 auto}
+  .dp-cols{grid-template-columns:1fr;gap:28px}
+}
+@media (max-width:680px){
+  .dc-grid{grid-template-columns:minmax(0,1fr);gap:16px}
+  .dc-card .dc-media{height:190px}
+  .car-track.marquee .car-item.doc-item{flex:0 0 min(78vw,290px);margin-right:14px}
+  .car-item.doc-item{flex-basis:78%}
+  .dc-section{padding-top:30px}
+  .dp-wrap{padding:18px 0 56px}
+  .dp-main{padding:22px 18px;border-radius:20px}
+  .dp-book{width:100%;justify-content:center}
+  .dp-stat{border-right:0;border-bottom:1px solid var(--line)}
+  .dp-stat:last-child{border-bottom:0}
+  .dp-stats{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.dc-card,.dc-media img,.dc-skel{transition:none;animation:none}}

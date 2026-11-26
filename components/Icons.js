@@ -79,7 +79,7 @@ export function Logo({ size = 1 }) {
 
         <path className="bp-ecg" d="M10 38h10l3-6 4 11 3-8 2 3h10" fill="none" stroke="#2f7bff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <span className="logo-text">Life Care Hospital <br />Jamalpur</span>
+      <span className="logo-text">Apollo Hospital <br />Jamalpur</span>
     </span>
   );
 }

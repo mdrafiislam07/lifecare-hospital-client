@@ -11,12 +11,14 @@ import PagesManager from '@/components/admin/PagesManager';
 import BannerManager from '@/components/admin/BannerManager';
 import PackagesManager from '@/components/admin/PackagesManager';
 import MenuEditor from '@/components/admin/MenuEditor';
+import FooterEditor from '@/components/admin/FooterEditor';
 
-const TABS = ['Overview', 'Appointments', 'Ambulance', 'Messages', 'Doctors', 'News', 'Media', 'Packages', 'Settings', 'Pages', 'Banners', 'Menu'];
-const SELF_LOADING = ['Settings', 'Pages', 'Banners', 'Packages', 'Menu'];   // ei tab gulo nijer data nije load kore
+const TABS = ['Overview', 'Appointments', 'Ambulance', 'Messages', 'Doctors', 'News', 'Media', 'Packages', 'Settings', 'Pages', 'Banners', 'Menu', 'Footer'];
+const SELF_LOADING = ['Settings', 'Pages', 'Banners', 'Packages', 'Menu', 'Footer'];   // ei tab gulo nijer data nije load kore
 const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const PLACEMENTS = [['gallery', 'Gallery'], ['about', 'Home – About section'], ['technology', 'Home – Technology section'], ['news', 'Home – News section']];
 const blank = { days: [], placement: 'gallery' };
+const lines = (t) => String(t || '').split('\n').map((x) => x.trim()).filter(Boolean);
 
 export default function Admin() {
   const { user, token, ready } = useAuth();
@@ -57,7 +59,8 @@ export default function Admin() {
 
   const addDoctor = (e) => { e.preventDefault(); act(() => api('/doctors', { method: 'POST', token, body: {
     name: form.name, nameBn: form.nameBn || undefined, department: form.department, designation: form.designation || undefined,
-    degrees: form.degrees || undefined, fee: Number(form.fee) || 800, days: form.days, startTime: form.startTime || '09:00', endTime: form.endTime || '17:00',
+    degrees: form.degrees || undefined, experience: form.experience || undefined, about: form.about || undefined,
+    specialties: lines(form.specialties).length ? lines(form.specialties) : undefined, fee: Number(form.fee) || 800, days: form.days, startTime: form.startTime || '09:00', endTime: form.endTime || '17:00',
     photo: img?.url, photoPublicId: img?.publicId } }), 'Doctor add hoyeche'); };
 
   const addNews = (e) => { e.preventDefault(); act(() => api('/news', { method: 'POST', token, body: {
@@ -83,6 +86,7 @@ export default function Admin() {
         {tab === 'Banners' && <BannerManager token={token} />}
         {tab === 'Packages' && <PackagesManager token={token} />}
         {tab === 'Menu' && <MenuEditor token={token} />}
+        {tab === 'Footer' && <FooterEditor token={token} />}
 
         {tab === 'Overview' && data && !Array.isArray(data) && (
           <div className="stat-grid">
@@ -124,9 +128,12 @@ export default function Admin() {
               <Field label="Department *"><input required value={form.department || ''} onChange={set('department')} placeholder="e.g. Cardiology" /></Field>
               <Field label="Designation"><input value={form.designation || ''} onChange={set('designation')} /></Field>
               <Field label="Degrees"><input value={form.degrees || ''} onChange={set('degrees')} /></Field>
+              <Field label="Experience" hint="e.g. 23+ years"><input value={form.experience || ''} onChange={set('experience')} /></Field>
               <Field label="Fee (৳)"><input type="number" value={form.fee || ''} onChange={set('fee')} /></Field>
               <Field label="Start"><input type="time" value={form.startTime || '09:00'} onChange={set('startTime')} /></Field>
               <Field label="End"><input type="time" value={form.endTime || '17:00'} onChange={set('endTime')} /></Field>
+              <div className="full"><Field label="Specialized in" hint="Prottek line e ekta (doctor profile page e dekhabe)"><textarea rows={4} value={form.specialties || ''} onChange={set('specialties')} placeholder={'Skin & VD Specialist\nSkin Disease'} /></Field></div>
+              <div className="full"><Field label="About doctor" hint="Doctor profile page e dekhabe. Paragraph alada korte majhe faka line din"><textarea rows={6} value={form.about || ''} onChange={set('about')} /></Field></div>
               <div className="field full"><span>Visiting days</span><div className="chips">{DAYS.map((d) => <button type="button" key={d} className={`chip-btn ${form.days.includes(d) ? 'on' : ''}`} onClick={() => toggleDay(d)}>{d}</button>)}</div></div>
               <button className="btn btn-primary btn-lg full">Add doctor</button>
             </form>

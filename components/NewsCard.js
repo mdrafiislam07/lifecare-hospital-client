@@ -10,7 +10,7 @@ export default function NewsCard({ n, more = false }) {
         : n.image ? <img className="news-photo" src={cld(n.image, 'w_700,h_400,c_fill')} alt={n.title} loading="lazy" width="700" height="400" />
         : <div className="news-img" aria-hidden="true"><Icon name="clipboard" size={42} /></div>}
       <h3 className="bn">{n.title}</h3>
-      <p className="news-by">{n.author || 'Life Care Hospital Limited'}</p>
+      <p className="news-by">{n.author || 'Apollo Hospital Limited'}</p>
       <p className="bn">{n.excerpt}</p>
       {more && <Link href="/news" className="btn btn-soft">Read More</Link>}
     </article>

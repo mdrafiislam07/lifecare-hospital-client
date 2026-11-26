@@ -10,7 +10,14 @@ const ICONS = ['calendar', 'steth', 'clipboard', 'ambulance', 'phone', 'ribbon',
 const lines = (t) => String(t || '').split('\n').map((x) => x.trim()).filter(Boolean);
 const paras = (t) => String(t || '').split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean);
 
-const blankDept = { name: '', icon: 'steth', dept: '' };
+// Google Maps embed code (<iframe ...>) puro paste korle-o shudhu src="..." ta ber kore nibe
+const embedSrc = (v) => {
+  const t = String(v || '').trim();
+  const m = t.match(/src\s*=\s*["']([^"']+)["']/i);
+  return (m ? m[1] : t).replace(/&amp;/g, '&');
+};
+
+const blankDept = { name: '', icon: 'steth', dept: '', image: '', imagePublicId: '' };
 const blankWhy = { icon: 'steth', title: '', text: '' };
 const blankTech = { title: '', text: '' };
 
@@ -18,11 +25,13 @@ export default function SettingsEditor({ token }) {
   const [f, setF] = useState(null);
   const [logo, setLogo] = useState(null);
   const [hero, setHero] = useState(null);
+  const [aboutImg, setAboutImg] = useState(null);
   const [banners, setBanners] = useState({});
+  const [heroBanners, setHeroBanners] = useState([]);   // home slider: [{url, publicId} | null]
   const [err, setErr] = useState(''); const [ok, setOk] = useState(''); const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api('/settings').then((r) => {
+    api('/settings/admin', { token }).then((r) => {
       const s = r.item;
       const h = mergeHome(s.home);
       setF({
@@ -36,9 +45,11 @@ export default function SettingsEditor({ token }) {
       });
       setLogo(s.logo ? { url: s.logo, publicId: s.logoPublicId } : null);
       setHero(s.heroImage ? { url: s.heroImage, publicId: s.heroImagePublicId } : null);
+      setAboutImg(s.aboutImage ? { url: s.aboutImage, publicId: s.aboutImagePublicId || '' } : null);
+      setHeroBanners((s.heroBanners || []).filter((b) => b?.url).map((b) => ({ url: b.url, publicId: b.publicId || '' })));
       setBanners(Object.fromEntries(BANNER_PAGES.map(([k]) => [k, s.banners?.[k]?.url ? { url: s.banners[k].url, publicId: s.banners[k].publicId } : null])));
     }).catch((e) => setErr(e.message));
-  }, []);
+  }, [token]);
 
   if (!f) return <><Alert>{err}</Alert><p>Loading…</p></>;
 
@@ -46,16 +57,47 @@ export default function SettingsEditor({ token }) {
   const setIn = (k, sub) => (e) => setF({ ...f, [k]: { ...f[k], [sub]: e.target.value } });
   const setTile = (i, k, v) => setF({ ...f, quickTiles: f.quickTiles.map((t, x) => (x === i ? { ...t, [k]: v } : t)) });
 
+  // ---- hero slider banner helpers ----
+  const hbSet = (i, img) => setHeroBanners(img ? heroBanners.map((b, x) => (x === i ? img : b)) : heroBanners.filter((_, x) => x !== i));
+  const hbMove = (i, d) => { const j = i + d; if (j < 0 || j >= heroBanners.length) return; const a = [...heroBanners]; [a[i], a[j]] = [a[j], a[i]]; setHeroBanners(a); };
+
   // ---- home helpers ----
   const setH = (k, v) => setF({ ...f, home: { ...f.home, [k]: v } });
   const hIn = (k) => (e) => setH(k, e.target.value);
   const rowSet = (k, i, key, v) => setH(k, f.home[k].map((r, x) => (x === i ? { ...r, [key]: v } : r)));
   const rowAdd = (k, blank) => setH(k, [...f.home[k], { ...blank }]);
   const rowDel = (k, i) => setH(k, f.home[k].filter((_, x) => x !== i));
+  // ---- service cards (photo shoho) ----
+  const cards = f.home.serviceCards || [];
+  const cardSet = (i, patch) => setH('serviceCards', cards.map((c, x) => (x === i ? { ...c, ...patch } : c)));
+  const cardMove = (i, d) => { const j = i + d; if (j < 0 || j >= cards.length) return; const a = [...cards]; [a[i], a[j]] = [a[j], a[i]]; setH('serviceCards', a); };
+  const importServices = async () => {
+    setErr(''); setOk('');
+    try {
+      const r = await api('/menu');
+      const g = (r.items || []).find((m) => m.group === 'services' || /^services$/i.test(m.label || ''));
+      const list = (g?.children || []).filter((c) => c.label && c.href).map((c) => ({ title: c.label, href: c.href, image: '', imagePublicId: '' }));
+      if (!list.length) return setErr('Services menu te kono page pawa jayni');
+      const have = new Set(cards.map((c) => c.href));
+      setH('serviceCards', [...cards, ...list.filter((c) => !have.has(c.href))].slice(0, 24));
+      setOk('Services menu theke import hoyeche. Ekhon prottek card e photo upload kore niche "Save settings" chapun.');
+    } catch (e) { setErr(e.message); }
+  };
+
   const toggleHidden = (key) => setH('hidden', f.home.hidden.includes(key) ? f.home.hidden.filter((x) => x !== key) : [...f.home.hidden, key]);
 
   const save = async (e) => {
-    e.preventDefault(); setErr(''); setOk(''); setBusy(true);
+    e.preventDefault(); setErr(''); setOk('');
+
+    // Footer map: embed link thik format e ache kina age-i check
+    const mapEmbed = embedSrc(f.mapEmbed);
+    if (mapEmbed && !/^https:\/\/www\.google\.com\/maps\/embed/i.test(mapEmbed)) {
+      setErr('"Footer map (embed link)" thik na. maps.app.goo.gl ba share link ekhane cholbe na. Google Maps > Share > "Embed a map" tab > "COPY HTML" kore oi puro code ekhane paste korun. (Share link ta uporer "Google Map link" field e dite parben.)');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    setBusy(true);
     try {
       const num = (v) => Number(v) || 0;
       const H = f.home;
@@ -63,20 +105,22 @@ export default function SettingsEditor({ token }) {
         siteName: f.siteName, logo: logo?.url || '', logoPublicId: logo?.publicId || '',
         hotline: f.hotline || '', emergency: f.emergency || '', contacts: lines(f.contactsText),
         email: f.email || '', address: f.address || '',
-        facebook: f.facebook || '', linkedin: f.linkedin || '', youtube: f.youtube || '', mapLink: f.mapLink || '', mapEmbed: f.mapEmbed || '',
+        facebook: f.facebook || '', linkedin: f.linkedin || '', youtube: f.youtube || '', mapLink: f.mapLink || '', mapEmbed,
         heroHeading: f.heroHeading || '', heroLead: f.heroLead || '', brandsLabel: f.brandsLabel || '', brandChips: lines(f.chipsText),
         heroImage: hero?.url || '', heroImagePublicId: hero?.publicId || '',
+        aboutImage: aboutImg?.url || '', aboutImagePublicId: aboutImg?.publicId || '',
+        aboutLink: (f.aboutLink || '').trim(),
         quickTiles: f.quickTiles.filter((t) => t.label.trim() && t.href.trim()),
         stats: { beds: num(f.stats?.beds), opdRooms: num(f.stats?.opdRooms), operationTheatres: num(f.stats?.operationTheatres), sqft: num(f.stats?.sqft) },
         aboutBadge: { big: f.aboutBadge?.big || '', sub: f.aboutBadge?.sub || '' },
-        footerAbout: f.footerAbout || '',
         home: {
           hidden: H.hidden,
           about: { title: H.about.title || '', paragraphs: paras(f.aboutText) },
           doctorsTitle: H.doctorsTitle || '', feedbackTitle: H.feedbackTitle || '', feedbackTagline: H.feedbackTagline || '',
           departmentsTitle: H.departmentsTitle || '',
-          departments: H.departments.filter((d) => d.name.trim()).map((d) => ({ name: d.name.trim(), icon: d.icon, dept: (d.dept || '').trim() })),
+          departments: H.departments.filter((d) => d.name.trim()).map((d) => ({ name: d.name.trim(), icon: d.icon, dept: (d.dept || '').trim(), image: d.image || '', imagePublicId: d.imagePublicId || '' })),
           servicesTitle: H.servicesTitle || '', servicesSub: H.servicesSub || '', services: lines(f.servicesText),
+          serviceCards: (H.serviceCards || []).filter((c) => c.title.trim() && c.href.trim()).map((c) => ({ title: c.title.trim(), href: c.href.trim(), image: c.image || '', imagePublicId: c.imagePublicId || '' })),
           whyTitle: H.whyTitle || '', whySub: H.whySub || '',
           why: H.why.filter((w) => w.title.trim()).map((w) => ({ icon: w.icon, title: w.title.trim(), text: (w.text || '').trim() })),
           facilitiesTitle: H.facilitiesTitle || '', facilities: lines(f.facilitiesText),
@@ -84,9 +128,11 @@ export default function SettingsEditor({ token }) {
           tech: H.tech.filter((t) => t.title.trim()).map((t) => ({ title: t.title.trim(), text: (t.text || '').trim() })),
           newsTitle: H.newsTitle || ''
         },
-        banners: Object.fromEntries(BANNER_PAGES.map(([k]) => [k, { url: banners[k]?.url || '', publicId: banners[k]?.publicId || '' }]))
+        banners: Object.fromEntries(BANNER_PAGES.map(([k]) => [k, { url: banners[k]?.url || '', publicId: banners[k]?.publicId || '' }])),
+        heroBanners: heroBanners.filter((b) => b?.url).map((b) => ({ url: b.url, publicId: b.publicId || '' }))
       };
-      await api('/settings', { method: 'PUT', token, body });
+      const res = await api('/settings', { method: 'PUT', token, body });
+      setF((cur) => ({ ...cur, mapEmbed: res.item?.mapEmbed ?? mapEmbed }));   // iframe paste korle clean src dekhabe
       setOk('Settings save hoyeche. Site e ~1 minute er moddhe (ba sathe sathe) update hobe.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e2) { setErr(e2.message); window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -113,9 +159,9 @@ export default function SettingsEditor({ token }) {
           <Field label="Hotline"><input value={f.hotline || ''} onChange={set('hotline')} inputMode="tel" /></Field>
           <Field label="Emergency number"><input value={f.emergency || ''} onChange={set('emergency')} inputMode="tel" placeholder="+880 1608-100008" /></Field>
           <Field label="Email"><input type="email" value={f.email || ''} onChange={set('email')} /></Field>
-          <Field label="Google Map link" hint="Google Maps > Share > Copy link"><input value={f.mapLink || ''} onChange={set('mapLink')} placeholder="https://maps.google.com/…" /></Field>
-          <div className="full"><Field label="Footer map (embed link)" hint='Google Maps > Share > Embed a map > code theke shudhu src="…" er vitorer link ta. Khali rakhle default map dekhabe.'><input value={f.mapEmbed || ''} onChange={set('mapEmbed')} placeholder="https://www.google.com/maps/embed?pb=…" /></Field></div>
-          <div className="full"><Field label="Address"><input value={f.address || ''} onChange={set('address')} /></Field></div>
+          <Field label="Google Map link" hint='Footer e map er niche "Open in Google Maps" link hishebe dekhabe. Google Maps > Share > Copy link'><input value={f.mapLink || ''} onChange={set('mapLink')} placeholder="https://maps.google.com/…" /></Field>
+          <div className="full"><Field label="Footer map (embed link)" hint='Footer er map ta ei link theke ashe. Google Maps > Share > "Embed a map" tab > COPY HTML, tarpor puro code (<iframe …>) ekhane paste korun. Khali rakhle Address diye map dekhabe.'><input value={f.mapEmbed || ''} onChange={set('mapEmbed')} placeholder='<iframe src="https://www.google.com/maps/embed?pb=…"></iframe>  ba  https://www.google.com/maps/embed?pb=…' /></Field></div>
+          <div className="full"><Field label="Address" hint="Footer e dekhay, ar embed link khali thakle map ei address theke ashe"><input value={f.address || ''} onChange={set('address')} /></Field></div>
           <div className="full"><Field label="Contact numbers" hint="Prottek line e ekta number"><textarea rows={3} value={f.contactsText} onChange={set('contactsText')} /></Field></div>
         </div>
       </section>
@@ -126,6 +172,21 @@ export default function SettingsEditor({ token }) {
           <Field label="LinkedIn"><input value={f.linkedin || ''} onChange={set('linkedin')} placeholder="https://linkedin.com/…" /></Field>
           <Field label="YouTube"><input value={f.youtube || ''} onChange={set('youtube')} placeholder="https://youtube.com/…" /></Field>
         </div>
+      </section>
+
+      <section className="card cms-sec"><h3>Home hero banners (slider)</h3>
+        <p className="muted">Home page er upore full-width slider. Ekadhik banner din (max 8), ta 5 second por por auto change hobe. Proshonsho: 1920×600 px, 5MB er choto. Kono banner na dile 2 ta demo banner dekhabe. Order bodlate ↑ ↓ use korun, tarpor niche "Save settings" chapun.</p>
+        {heroBanners.map((b, i) => (
+          <div className="menu-card" key={i}>
+            <ImageUpload folder="banners" token={token} label={`Banner ${i + 1}`} value={b} onChange={(img) => hbSet(i, img)} />
+            <div className="row-actions">
+              <button type="button" className="btn btn-sm btn-outline" disabled={i === 0} onClick={() => hbMove(i, -1)}>↑ Up</button>
+              <button type="button" className="btn btn-sm btn-outline" disabled={i === heroBanners.length - 1} onClick={() => hbMove(i, 1)}>↓ Down</button>
+              <button type="button" className="btn btn-sm btn-del" onClick={() => setHeroBanners(heroBanners.filter((_, x) => x !== i))}>Remove</button>
+            </div>
+          </div>
+        ))}
+        {heroBanners.length < 8 && <button type="button" className="btn btn-sm btn-outline" onClick={() => setHeroBanners([...heroBanners, null])}>+ Add banner</button>}
       </section>
 
       <section className="card cms-sec"><h3>Home hero</h3>
@@ -175,6 +236,8 @@ export default function SettingsEditor({ token }) {
         <div className="cms-grid">
           <div className="full"><Field label="Heading"><input value={f.home.about.title} onChange={(e) => setH('about', { ...f.home.about, title: e.target.value })} /></Field></div>
           <div className="full"><Field label="Text" hint="Prottek paragraph er majhe ekta faka line rakhun"><textarea rows={10} value={f.aboutText} onChange={set('aboutText')} /></Field></div>
+          <div className="full"><ImageUpload folder="settings" token={token} value={aboutImg} onChange={setAboutImg} label="About photo (hospital building)" /></div>
+          <div className="full"><Field label="Know More button link" hint="Khali rakhle About menu-r prothom page e jabe. Jemon: /about/overview ba /doctors"><input value={f.aboutLink || ''} onChange={set('aboutLink')} placeholder="/about/overview" /></Field></div>
         </div>
       </section>
 
@@ -190,12 +253,15 @@ export default function SettingsEditor({ token }) {
       <section className="card cms-sec"><h3>Home: Departments</h3>
         <div className="full"><Field label="Section title"><input value={f.home.departmentsTitle} onChange={hIn('departmentsTitle')} /></Field></div>
         {f.home.departments.map((d, i) => (
-          <div key={i}>
+          <div key={i} className="menu-card">
             <div className="tile-row">
               <input aria-label="Department name" placeholder="Name (e.g. Orthopedic)" value={d.name} onChange={(e) => rowSet('departments', i, 'name', e.target.value)} />
               <input aria-label="Doctor list department" placeholder="Doctors list e kon department (khali = same)" value={d.dept || ''} onChange={(e) => rowSet('departments', i, 'dept', e.target.value)} />
               {iconSelect(d.icon, (v) => rowSet('departments', i, 'icon', v), 'Department icon')}
             </div>
+            <ImageUpload folder="settings" token={token} label="Department photo / icon (optional) — dile icon er jayga-y ei chobi dekhabe"
+              value={d.image ? { url: d.image, publicId: d.imagePublicId || '' } : null}
+              onChange={(img) => setH('departments', f.home.departments.map((r, x) => (x === i ? { ...r, image: img?.url || '', imagePublicId: img?.publicId || '' } : r)))} />
             <div className="row-actions"><button type="button" className="btn btn-sm btn-del" onClick={() => rowDel('departments', i)}>Remove</button></div>
           </div>
         ))}
@@ -206,7 +272,30 @@ export default function SettingsEditor({ token }) {
         <div className="cms-grid">
           <div className="full"><Field label="Section title"><input value={f.home.servicesTitle} onChange={hIn('servicesTitle')} /></Field></div>
           <div className="full"><Field label="Sub text"><textarea rows={2} value={f.home.servicesSub} onChange={hIn('servicesSub')} /></Field></div>
-          <div className="full"><Field label="Services list" hint="Prottek line e ekta service"><textarea rows={10} value={f.servicesText} onChange={set('servicesText')} /></Field></div>
+          <div className="full"><Field label="Services list (shudhu card na thakle fallback)" hint="Prottek line e ekta service. Niche Service cards dile ei list dekhabe na"><textarea rows={10} value={f.servicesText} onChange={set('servicesText')} /></Field></div>
+        </div>
+      
+        <h4 style={{ margin: '18px 0 6px' }}>Service cards (photo shoho)</h4>
+        <p className="muted">Home page e photo wala card hishebe dekhabe. Card na dile Services menu-r prothom 8 ta page photo chara dekhabe. "Import" chapun, tarpor prottek card e photo dien (proshonsho 760×580 px).</p>
+        {cards.map((c, i) => (
+          <div key={i} className="menu-card">
+            <div className="tile-row">
+              <input aria-label="Service title" placeholder="Title (e.g. ICU)" value={c.title} onChange={(e) => cardSet(i, { title: e.target.value })} />
+              <input aria-label="Service link" placeholder="/services/icu" value={c.href} onChange={(e) => cardSet(i, { href: e.target.value })} />
+            </div>
+            <ImageUpload folder="settings" token={token} label="Photo"
+              value={c.image ? { url: c.image, publicId: c.imagePublicId || '' } : null}
+              onChange={(img) => cardSet(i, { image: img?.url || '', imagePublicId: img?.publicId || '' })} />
+            <div className="row-actions">
+              <button type="button" className="btn btn-sm btn-outline" disabled={i === 0} onClick={() => cardMove(i, -1)}>↑ Up</button>
+              <button type="button" className="btn btn-sm btn-outline" disabled={i === cards.length - 1} onClick={() => cardMove(i, 1)}>↓ Down</button>
+              <button type="button" className="btn btn-sm btn-del" onClick={() => setH('serviceCards', cards.filter((_, x) => x !== i))}>Remove</button>
+            </div>
+          </div>
+        ))}
+        <div className="row-actions">
+          {cards.length < 24 && <button type="button" className="btn btn-sm btn-outline" onClick={() => setH('serviceCards', [...cards, { title: '', href: '', image: '', imagePublicId: '' }])}>+ Add card</button>}
+          <button type="button" className="btn btn-sm btn-outline" onClick={importServices}>Import from Services menu</button>
         </div>
       </section>
 
@@ -260,10 +349,6 @@ export default function SettingsEditor({ token }) {
               value={banners[k]} onChange={(img) => setBanners({ ...banners, [k]: img })} />
           ))}
         </div>
-      </section>
-
-      <section className="card cms-sec"><h3>Footer</h3>
-        <Field label="Footer about text"><textarea rows={4} value={f.footerAbout || ''} onChange={set('footerAbout')} /></Field>
       </section>
 
       <div className="sticky-save"><button className="btn btn-primary btn-lg" disabled={busy}>{busy ? 'Saving…' : 'Save settings'}</button></div>

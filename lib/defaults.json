@@ -1,6 +1,6 @@
 {
   "settings": {
-    "siteName": "Life Care Hospital",
+    "siteName": "Apollo Hospital",
     "logo": "",
     "logoPublicId": "",
     "hotline": "10622",
@@ -19,9 +19,9 @@
     "heroLead": "250-bed tertiary care hospital in Jamalpur. Emergency, ICU, heart centre, dialysis and 16+ specialties under one roof.",
     "brandsLabel": "United Healthcare brands",
     "brandChips": [
-      "Life Care Hospital",
+      "Apollo Hospital",
       "medix doctors & diagnostics",
-      "Life Care Hospital"
+      "Apollo Hospital"
     ],
     "heroImage": "",
     "heroImagePublicId": "",
@@ -55,9 +55,9 @@
     },
     "aboutBadge": {
       "big": "৪ বছর",
-      "sub": "Foundation Day · Life Care Hospital"
+      "sub": "Foundation Day · Apollo Hospital"
     },
-    "footerAbout": "Life Care Hospital is a 250-bed tertiary care hospital in Jamalpur, a sister concern of United Healthcare Services Ltd., offering emergency, specialist and diagnostic care at an affordable price."
+    "footerAbout": "Apollo Hospital is a 250-bed tertiary care hospital in Jamalpur, a sister concern of United Healthcare Services Ltd., offering emergency, specialist and diagnostic care at an affordable price."
   },
   "pages": [
     {
