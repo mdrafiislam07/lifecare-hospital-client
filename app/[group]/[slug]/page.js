@@ -10,15 +10,18 @@ export const dynamicParams = true;
 export function generateStaticParams() { return []; }   // page gulo prothom visit e render hoy, tarpor ISR cache
 
 export async function generateMetadata({ params }) {
-  const r = await getPage(params.group, params.slug);
+  const { group, slug } = await params;            // Next 15+ e params Promise
+  const r = await getPage(group, slug);
   return { title: r?.item?.title || 'Page' };
 }
 
 export default async function InfoPage({ params }) {
-  const [r, menu, site] = await Promise.all([getPage(params.group, params.slug), getMenu(), getSettings()]);
-  if (!r) notFound();
-  const { item: page, siblings } = r;
-  const label = menu.find((m) => m.group === params.group)?.label || params.group.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+  const { group, slug } = await params;
+  const [r, menu, site] = await Promise.all([getPage(group, slug), getMenu(), getSettings()]);
+  if (!r?.item) notFound();
+  const page = r.item;
+  const siblings = Array.isArray(r.siblings) && r.siblings.length ? r.siblings : [page];   // backend siblings na pathale-o crash korbe na
+  const label = (Array.isArray(menu) ? menu : []).find((m) => m.group === group)?.label || String(group).replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
   return (
     <>
       {page.banner ? (
@@ -33,7 +36,7 @@ export default async function InfoPage({ params }) {
       <section className="container info-layout section">
         <aside className="info-side" aria-label={`${label} menu`}>
           <h3>{label}</h3>
-          <ul>{siblings.map((p) => <li key={p.slug}><Link className={p.slug === page.slug ? 'on' : ''} href={`/${params.group}/${p.slug}`}>{p.title}</Link></li>)}</ul>
+          <ul>{siblings.map((p) => <li key={p.slug}><Link className={p.slug === page.slug ? 'on' : ''} href={`/${group}/${p.slug}`}>{p.title}</Link></li>)}</ul>
         </aside>
         <article className="info-body card">
           <h2>{page.title}</h2>
