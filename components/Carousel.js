@@ -1,14 +1,17 @@
 'use client';
-import { Children, useEffect, useRef } from 'react';
+import { Children, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Icon from './Icons';
 
 // User swipe/scroll korar por koto ms pore abar auto-run shuru hobe
 const IDLE_MS = 2500;
+// SSR e warning na dite
+const useIso = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /**
  * Carousel
- * - marquee (default true): auto-runs RIGHT -> LEFT in a seamless loop (same as before).
- *   Ekhon eta ekta real scrollable box, tai phone e swipe kore, desktop e trackpad / shift+wheel diye dekha jay.
+ * - marquee (default true): card gulo screen er cheye boro hole RIGHT -> LEFT auto-run kore (seamless loop).
+ *   Card gulo screen e eki ghe fit hoye gele (jemon 1 ta doctor) kono duplicate hoy na, auto-run o hoy na,
+ *   ar card gulo majhkhane thake.
  *   User touch/scroll korle auto-run thame jay, 2.5s por abar cholte thake. Mouse hover / keyboard focus e-o pause.
  * - marquee={false}: old behaviour (swipe + prev/next buttons).
  * - speed: seconds per card (default 9). Smaller = faster.
@@ -16,12 +19,33 @@ const IDLE_MS = 2500;
 export default function Carousel({ children, label, marquee = true, speed = 9 }) {
   const ref = useRef(null);    // prev/next mode er track
   const boxRef = useRef(null); // marquee mode er scrollable box
+  const trackRef = useRef(null);
+  const loopRef = useRef(false);
+  const [loop, setLoop] = useState(false); // true hole-i shudhu duplicate set render hoy
   const items = Children.toArray(children);
   const isMarquee = marquee && items.length > 0;
   const duration = Math.max(30, items.length * speed); // ekta puro loop e koto second
+  loopRef.current = loop;
+
+  // Card gulo ki screen er cheye boro? Tahole-i loop (duplicate) dorkar
+  useIso(() => {
+    if (!isMarquee) return undefined;
+    const box = boxRef.current;
+    const track = trackRef.current;
+    if (!box || !track) return undefined;
+    const measure = () => {
+      const one = loopRef.current ? track.scrollWidth / 2 : track.scrollWidth; // ek set er width
+      setLoop(one > box.clientWidth + 1);
+    };
+    measure();
+    let ro;
+    if ('ResizeObserver' in window) { ro = new ResizeObserver(measure); ro.observe(box); }
+    window.addEventListener('resize', measure);
+    return () => { ro?.disconnect(); window.removeEventListener('resize', measure); };
+  }, [isMarquee, items.length]);
 
   useEffect(() => {
-    if (!isMarquee) return undefined;
+    if (!isMarquee || !loop) return undefined;
     const box = boxRef.current;
     if (!box) return undefined;
 
@@ -111,15 +135,19 @@ export default function Carousel({ children, label, marquee = true, speed = 9 })
       box.removeEventListener('focusin', onFocusIn);
       box.removeEventListener('focusout', onFocusOut);
     };
-  }, [isMarquee, duration]);
+  }, [isMarquee, loop, duration]);
 
   if (isMarquee) {
     return (
       <div className="carousel is-marquee" role="region" aria-label={label} ref={boxRef}>
-        <div className="car-track marquee">
+        <div
+          className="car-track marquee"
+          ref={trackRef}
+          style={loop ? undefined : { marginLeft: 'auto', marginRight: 'auto' }} /* kom card hole majhkhane */
+        >
           {items}
-          {/* duplicate set for a seamless loop (hidden from screen readers) */}
-          <div style={{ display: 'contents' }} aria-hidden="true">{items}</div>
+          {/* duplicate set shudhu tokhon-i, jokhon card gulo screen er cheye boro (seamless loop er jonno) */}
+          {loop && <div style={{ display: 'contents' }} aria-hidden="true">{items}</div>}
         </div>
       </div>
     );
