@@ -175,7 +175,7 @@ export default function SettingsEditor({ token }) {
       </section>
 
       <section className="card cms-sec"><h3>Home hero banners (slider)</h3>
-        <p className="muted">Home page er upore full-width slider. Ekadhik banner din (max 8), ta 5 second por por auto change hobe. Proshonsho: 1920×600 px, 5MB er choto. Kono banner na dile 2 ta demo banner dekhabe. Order bodlate ↑ ↓ use korun, tarpor niche "Save settings" chapun.</p>
+        <p className="muted">Home page er upore full-width slider. Ekadhik banner din (max 8), ta 5 second por por auto change hobe. Proshonsho: 1920×800 px, 5MB er choto. Kono banner na dile 2 ta demo banner dekhabe. Order bodlate ↑ ↓ use korun, tarpor niche "Save settings" chapun.</p>
         {heroBanners.map((b, i) => (
           <div className="menu-card" key={i}>
             <ImageUpload folder="banners" token={token} label={`Banner ${i + 1}`} value={b} onChange={(img) => hbSet(i, img)} />
@@ -274,7 +274,7 @@ export default function SettingsEditor({ token }) {
           <div className="full"><Field label="Sub text"><textarea rows={2} value={f.home.servicesSub} onChange={hIn('servicesSub')} /></Field></div>
           <div className="full"><Field label="Services list (shudhu card na thakle fallback)" hint="Prottek line e ekta service. Niche Service cards dile ei list dekhabe na"><textarea rows={10} value={f.servicesText} onChange={set('servicesText')} /></Field></div>
         </div>
-      
+
         <h4 style={{ margin: '18px 0 6px' }}>Service cards (photo shoho)</h4>
         <p className="muted">Home page e photo wala card hishebe dekhabe. Card na dile Services menu-r prothom 8 ta page photo chara dekhabe. "Import" chapun, tarpor prottek card e photo dien (proshonsho 760×580 px).</p>
         {cards.map((c, i) => (
