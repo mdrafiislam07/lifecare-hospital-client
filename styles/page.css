@@ -1,0 +1,32 @@
+/* CMS page layout: optional banner + centered title + centered content (prefix: pg-) */
+.pg-banner{width:100%;line-height:0;background:#eaf0ff}
+.pg-banner img{display:block;width:100%;height:auto;aspect-ratio:1920/560;object-fit:cover}
+
+.pg{--pg-p:var(--primary,#1d4ed8);--pg-d:var(--primary-dark,#1e3a8a);--pg-ink:#14213d;--pg-mute:#5b6784;--pg-line:#e3e9f5;
+  width:100%;margin:0 auto;box-sizing:border-box;
+  padding:clamp(26px,4.5vw,60px) clamp(16px,4vw,48px) clamp(48px,7vw,100px)}
+.pg-read{max-width:1216px}   /* content 1120px column */
+.pg-wide{max-width:1440px}   /* dynamic section 1344px */
+
+.pg-title{margin:0 0 clamp(20px,3vw,34px);text-align:center;font-size:clamp(1.8rem,4vw,2.9rem);font-weight:800;line-height:1.15;letter-spacing:-.01em;color:var(--pg-d);overflow-wrap:anywhere}
+.pg-title::after{content:"";display:block;width:64px;height:4px;margin:14px auto 0;border-radius:4px;background:linear-gradient(90deg,var(--pg-p),#60a5fa)}
+.pg-desc{max-width:780px;margin:-8px auto clamp(22px,3vw,38px);text-align:center;color:var(--pg-mute);font-size:clamp(.98rem,1.4vw,1.1rem);line-height:1.75}
+.pg-intro{max-width:880px;margin:0 auto clamp(22px,3vw,38px)}
+
+/* rich content: centered column, centered images */
+.pg .rich{font-size:clamp(.98rem,1.15vw,1.08rem);line-height:1.9;color:#243049;overflow-wrap:anywhere}
+.pg .rich>*:first-child{margin-top:0}
+.pg .rich h2,.pg .rich h3,.pg .rich h4{margin:1.6em 0 .6em;font-weight:800;line-height:1.3;color:var(--pg-ink)}
+.pg .rich h2{font-size:clamp(1.35rem,2.4vw,1.8rem)}
+.pg .rich h3{font-size:clamp(1.2rem,2vw,1.45rem)}
+.pg .rich h4{font-size:1.1rem}
+.pg .rich p{margin:0 0 1.1em}
+.pg .rich strong{color:var(--pg-ink)}
+.pg .rich img{display:block;margin:28px auto;max-width:100%;height:auto;padding:0;border:0;border-radius:12px;box-shadow:none;background:none}
+.pg .rich table{display:block;max-width:100%;overflow-x:auto}
+.pg .rich blockquote{margin:1.4em 0;padding:14px 20px;border-left:4px solid var(--pg-p);border-radius:0 12px 12px 0;background:#f3f6ff}
+
+.pg-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:clamp(28px,4vw,48px);padding-top:clamp(22px,3vw,32px);border-top:1px solid var(--pg-line)}
+@media (max-width:600px){
+  .pg-cta .btn{flex:1 1 100%;text-align:center;justify-content:center}
+}

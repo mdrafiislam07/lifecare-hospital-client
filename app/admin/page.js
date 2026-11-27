@@ -8,13 +8,14 @@ import { Alert, Field, PageHero } from '@/components/Ui';
 import ImageUpload from '@/components/ImageUpload';
 import SettingsEditor from '@/components/admin/SettingsEditor';
 import PagesManager from '@/components/admin/PagesManager';
+import AboutManager from '@/components/admin/AboutManager';
 import BannerManager from '@/components/admin/BannerManager';
 import PackagesManager from '@/components/admin/PackagesManager';
 import MenuEditor from '@/components/admin/MenuEditor';
 import FooterEditor from '@/components/admin/FooterEditor';
 
-const TABS = ['Overview', 'Appointments', 'Ambulance', 'Messages', 'Doctors', 'News', 'Media', 'Packages', 'Settings', 'Pages', 'Banners', 'Menu', 'Footer'];
-const SELF_LOADING = ['Settings', 'Pages', 'Banners', 'Packages', 'Menu', 'Footer'];   // ei tab gulo nijer data nije load kore
+const TABS = ['Overview', 'Appointments', 'Ambulance', 'Messages', 'Doctors', 'News', 'Media', 'Packages', 'Settings', 'Pages', 'About Data', 'Banners', 'Menu', 'Footer'];
+const SELF_LOADING = ['Settings', 'Pages', 'About Data', 'Banners', 'Packages', 'Menu', 'Footer'];   // ei tab gulo nijer data nije load kore
 const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const PLACEMENTS = [['gallery', 'Gallery'], ['about', 'Home – About section'], ['technology', 'Home – Technology section'], ['news', 'Home – News section']];
 const blank = { days: [], placement: 'gallery' };
@@ -83,6 +84,7 @@ export default function Admin() {
 
         {tab === 'Settings' && <SettingsEditor token={token} />}
         {tab === 'Pages' && <PagesManager token={token} />}
+        {tab === 'About Data' && <AboutManager token={token} />}
         {tab === 'Banners' && <BannerManager token={token} />}
         {tab === 'Packages' && <PackagesManager token={token} />}
         {tab === 'Menu' && <MenuEditor token={token} />}

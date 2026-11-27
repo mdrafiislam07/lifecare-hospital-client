@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getPage, getMenu, getSettings } from '@/lib/content';
+import { getPage, getSettings, getList, ABOUT_SOURCES } from '@/lib/content';
 import { cld } from '@/lib/img';
-import { PageHero } from '@/components/Ui';
+import AboutSection from '@/components/about/AboutSection';
 import '@/styles/cms.css';
+import '@/styles/page.css';
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -15,38 +16,54 @@ export async function generateMetadata({ params }) {
   return { title: r?.item?.title || 'Page' };
 }
 
+const T = 'c_fill,g_auto,q_auto,f_auto';           // banner sob shomoy 1920x560 (ratio ek)
+
 export default async function InfoPage({ params }) {
   const { group, slug } = await params;
-  const [r, menu, site] = await Promise.all([getPage(group, slug), getMenu(), getSettings()]);
+  const [r, site] = await Promise.all([getPage(group, slug), getSettings()]);
   if (!r?.item) notFound();
   const page = r.item;
-  const siblings = Array.isArray(r.siblings) && r.siblings.length ? r.siblings : [page];   // backend siblings na pathale-o crash korbe na
-  const label = (Array.isArray(menu) ? menu : []).find((m) => m.group === group)?.label || String(group).replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+
+  // dynamic type (team / staff / faq / career / blogs) hole tar data ane
+  const src = ABOUT_SOURCES[page.type];
+  const dyn = Boolean(src);
+  const items = dyn ? await getList(src) : [];
+  const b = page.banner;
+
   return (
     <>
-      {page.banner ? (
-        <section className="page-banner" aria-label={page.title}>
-          <h1 className="sr-only">{page.title}</h1>
+      {/* banner: admin upload korle tobei dekhabe, na korle kichui na */}
+      {b && (
+        <section className="pg-banner" aria-label={page.title}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={cld(page.banner, 'w_1920,c_limit,q_auto,f_auto')} alt={page.title} fetchPriority="high" />
+          <img
+            src={cld(b, `w_1920,h_560,${T}`)}
+            srcSet={`${cld(b, `w_768,h_224,${T}`)} 768w, ${cld(b, `w_1280,h_373,${T}`)} 1280w, ${cld(b, `w_1920,h_560,${T}`)} 1920w`}
+            sizes="100vw" width="1920" height="560" alt={page.title} fetchPriority="high"
+          />
         </section>
-      ) : (
-        <PageHero title={page.title} text={page.desc} />
       )}
-      <section className="container info-layout section">
-        <aside className="info-side" aria-label={`${label} menu`}>
-          <h3>{label}</h3>
-          <ul>{siblings.map((p) => <li key={p.slug}><Link className={p.slug === page.slug ? 'on' : ''} href={`/${group}/${p.slug}`}>{p.title}</Link></li>)}</ul>
-        </aside>
-        <article className="info-body card">
-          <h2>{page.title}</h2>
-          {/* content server e sanitize kora (sanitize-html) */}
-          <div className="rich" dangerouslySetInnerHTML={{ __html: page.content || '' }} />
-          <div className="info-cta">
-            <a className="btn btn-primary" href={`tel:${site.hotline}`}>Call {site.hotline}</a>
-            <Link className="btn btn-outline" href="/appointment">Doctor Appointment</Link>
-          </div>
-        </article>
+
+      <section className={`pg ${dyn ? 'pg-wide' : 'pg-read'}`}>
+        <h1 className="pg-title">{page.title}</h1>
+        {page.desc && (dyn || !page.content) && <p className="pg-desc">{page.desc}</p>}
+
+        {dyn ? (
+          <>
+            {/* content = optional intro text */}
+            {page.content && <div className="pg-intro"><div className="rich" dangerouslySetInnerHTML={{ __html: page.content }} /></div>}
+            <AboutSection type={page.type} items={items} />
+          </>
+        ) : (
+          <>
+            {/* content server e sanitize kora (sanitize-html) */}
+            <div className="rich" dangerouslySetInnerHTML={{ __html: page.content || '' }} />
+            <div className="pg-cta">
+              <a className="btn btn-primary" href={`tel:${site.hotline}`}>Call {site.hotline}</a>
+              <Link className="btn btn-outline" href="/appointment">Doctor Appointment</Link>
+            </div>
+          </>
+        )}
       </section>
     </>
   );
